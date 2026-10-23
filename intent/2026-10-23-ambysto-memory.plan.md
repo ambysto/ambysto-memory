@@ -173,10 +173,10 @@ review; a changed row is rewritten, not ticked.
 | A14 | ambysto (root) `address-owner-as-sir.md` (written 2026-10-23 10:13 by another session, after plan acceptance) | lesson | `address-owner-as-sir` (convention, all): the owner is addressed as "Sir" ("Dạ Sir, …" in Vietnamese), naturally, not in every sentence | ☑ 2026-10-23 |
 | A15 | space `flag-owner-mistakes.md` (written 10:41 by a running session) | lesson | `flag-owner-mistakes` (correction, all) | ☑ 2026-10-23 |
 | A16 | space `close-duplicate-tickets.md` (written 10:42 by a running session) | lesson | `close-duplicate-tickets` (convention, all); the Cancelled state id is not copied: looked up by name | ☑ 2026-10-23 |
-| A17 | `ambysto-1prompt` `autonomous-run-aps31.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A4, already migrated | ☐ |
-| A18 | `ambysto-1prompt` `flag-owner-mistakes.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A15, already migrated | ☐ |
-| A19 | `ambysto-1prompt` `loop-assessment-framing.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A6, already migrated | ☐ |
-| A20 | `ambysto-1prompt` `sure-over-fast.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A7, already migrated | ☐ |
+| A17 | `ambysto-1prompt` `autonomous-run-aps31.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A4, already migrated | ☑ 2026-10-23 |
+| A18 | `ambysto-1prompt` `flag-owner-mistakes.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A15, already migrated | ☑ 2026-10-23 |
+| A19 | `ambysto-1prompt` `loop-assessment-framing.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A6, already migrated | ☑ 2026-10-23 |
+| A20 | `ambysto-1prompt` `sure-over-fast.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A7, already migrated | ☑ 2026-10-23 |
 
 ### `~/.claude/CLAUDE.md`, machine section (after the guide block, 12 KB)
 
