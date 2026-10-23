@@ -4,7 +4,9 @@ Shared, owner-reviewed memory for every Ambysto repo and session, in any coding 
 Tracked in Plane as APS-36.
 
 - `INDEX.md`: one line per active lesson, generated. Read it first.
-- `lessons/<slug>.md`: one lesson per file.
+- `lessons/<slug>.md`: one lesson per file: frontmatter `title`, `kind`, `applies_when`,
+  `projects`, `evidence`, `last_validated`, `status`, then 3 to 10 lines (shape and
+  example in `AGENTS.md`).
 - `AGENTS.md`: how any agent reads the memory and drafts a lesson.
 - `scripts/check.py`: lesson shape, `INDEX.md` in step, refused secret and identifying
   text, stale lessons (over 90 days) listed. `python3 scripts/check.py --write-index`

@@ -12,7 +12,9 @@ Standard library only.
 """
 
 import argparse
+import collections
 import datetime
+import math
 import os
 import re
 import subprocess
@@ -38,8 +40,12 @@ ALLOWED_DOMAINS = (
     "anthropic.com",
     "claude.com",
     "ambysto.com",
+    "digicert.com",
+    "example.com",
+    "example.org",
+    "example.net",
 )
-ALLOWED_HOSTS = ("localhost", "127.0.0.1")
+ALLOWED_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0")
 BARE_HOST_TLDS = ("com", "net", "org", "io", "dev", "ai", "co", "me", "cloud", "xyz", "vn")
 
 SECRET_PATTERNS = (
@@ -49,21 +55,42 @@ SECRET_PATTERNS = (
     ("Slack token", re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}")),
     ("AWS key id", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("private key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+    ("Plane API key", re.compile(r"(?i)plane_api_[0-9a-z]{8,}")),
+    ("bearer token", re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/-]{16,}")),
     ("credential assignment",
-     re.compile(r"(?i)(?<![A-Za-z])(?:password|passwd|token|secret|api[_-]?key)\s*[=:]\s*['\"]?[^\s'\"`]{8,}")),
-    ("UUID", re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b")),
+     re.compile(r"(?i)(?<![A-Za-z])(?:password|passwd|token|secret|api[_-]?key)\s*=\s*['\"]?[^\s'\"`]{8,}")),
+    ("credential assignment",
+     re.compile(r"(?i)(?<![A-Za-z])(?:password|passwd|token|secret|api[_-]?key)\s*:\s*['\"]?"
+                r"(?=[^\s'\"`]*[0-9])(?=[^\s'\"`]*[A-Za-z])[^\s'\"`:/~.,]{16,}")),
+    ("UUID", re.compile(r"(?<![0-9A-Fa-f])[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+                        r"(?![0-9A-Fa-f])")),
     ("e-mail address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")),
-    ("absolute home path", re.compile(r"/home/[A-Za-z0-9._-]+/")),
-    ("Vercel deployment host", re.compile(r"\b[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.vercel\.app\b")),
+    # A drive letter before /Users/ means a Windows path (the VM's C:/Users/ambytest/), not a Mac home.
+    ("absolute home path", re.compile(r"(?<![A-Za-z]:)/(?:home|Users)/[A-Za-z0-9._-]+/")),
+    # Claude Code encodes a project folder as -home-<account>-work-…; the account name must not reach GitHub.
+    ("encoded home path", re.compile(r"(?:^|[\s`'\"/(\[])-(?:home|Users)-[A-Za-z0-9]")),
+    ("Vercel deployment host", re.compile(r"(?i)\b[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.vercel\.app\b")),
 )
-HEX_RUN = re.compile(r"\b[0-9a-fA-F]{13,}\b")
-B64_RUN = re.compile(r"[A-Za-z0-9+]{32,}={0,2}")
+# Hex and base64 runs are bounded by lookarounds, not \b: `_` is a word character, so a key after a
+# prefix such as `name_` would never start at a word boundary.
+HEX_RUN = re.compile(r"(?<![0-9A-Fa-f])[0-9a-fA-F]{13,}(?![0-9A-Fa-f])")
+# Random keys measure 4.6 bits per character or more; real paths and identifiers of that length 4.2 or less.
+B64_MIN_ENTROPY = 4.4
+B64_RUN = re.compile(r"(?<![A-Za-z0-9+/_=-])[A-Za-z0-9+/_-]{32,}={0,2}")
 URL = re.compile(r"\b[a-zA-Z][a-zA-Z0-9+.-]*://([^/\s'\"`<>()\[\]]+)")
+SCHEMELESS_URL = re.compile(r"(?<![:\w/])//([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)")
+IPV4 = re.compile(r"(?<![\d.])((?:\d{1,3}\.){3}\d{1,3})(?![\d.])")
 BARE_HOST = re.compile(
-    r"(?<![\w@/.-])((?:[A-Za-z0-9-]+\.)+(?:" + "|".join(BARE_HOST_TLDS) + r"))(?![\w-])"
+    r"(?i)(?<![\w@/.-])((?:[A-Za-z0-9-]+\.)+(?:" + "|".join(BARE_HOST_TLDS) + r"))(?![\w-])"
 )
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def entropy(text):
+    """Shannon entropy in bits per character."""
+    counts = collections.Counter(text)
+    return -sum(c / len(text) * math.log2(c / len(text)) for c in counts.values())
 
 
 def host_allowed(host):
@@ -85,13 +112,20 @@ def secret_findings(text):
                 yield n, "hex run of %d characters (a full SHA or a key; cite a PR, ticket or short SHA)" % len(run)
         for m in B64_RUN.finditer(line):
             run = m.group(0)
-            if re.search(r"[0-9]", run) and re.search(r"[a-z]", run) and re.search(r"[A-Z]", run):
+            if re.search(r"[a-z]", run) and re.search(r"[A-Z]", run) and entropy(run) >= B64_MIN_ENTROPY:
                 yield n, "base64-like run of %d characters" % len(run)
         for m in URL.finditer(line):
             host = m.group(1).rsplit("@", 1)[-1]
             host = re.sub(r":\d+$", "", host)
             if not host_allowed(host):
                 yield n, "URL host not on the allow list: %s" % host
+        for m in SCHEMELESS_URL.finditer(line):
+            if not host_allowed(m.group(1)):
+                yield n, "URL host not on the allow list: %s" % m.group(1)
+        for m in IPV4.finditer(line):
+            ip = m.group(1)
+            if all(int(part) <= 255 for part in ip.split(".")) and ip not in ALLOWED_HOSTS:
+                yield n, "IPv4 address: %s" % ip
         for m in BARE_HOST.finditer(line):
             if not host_allowed(m.group(1)):
                 yield n, "host not on the allow list: %s" % m.group(1)

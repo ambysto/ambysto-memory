@@ -232,6 +232,23 @@ class SecretTests(Base):
             (j("tracker.", "example", ".vn"), "host not on the allow list"),
             (j("ambysto-eta", ".vercel", ".app"), "Vercel deployment host"),
             (j("QWxhZGRpbjpvcGVu", "c2VzYW1lMTIzNDU2Nzg5"), "base64-like run"),
+            # Round 1 of the hard review: values behind a `_` prefix, mixed case, other forms.
+            (j("plane", "_api_", "0123456789ab", "cdef01234567", "89abcdef"), "Plane API key"),
+            (j("key_", "0123456789ab", "cdef01234567", "89abcdef"), "hex run of 32 characters"),
+            (j("sha_", "4ba51bfb5e90", "42cd85e36d1e", "d2af3b416f22", "f4b5"), "hex run of 40 characters"),
+            (j("id_", "12345678-", "abcd-ef01-2345-", "67890abcdef0"), "UUID"),
+            (j("aws_secret_access_key = ", "wJalrXUtnFEMI/K7MDENG", "/bPxRfiCYEXAMPLEKEY"), "base64-like run"),
+            (j("AbCdEfGhIjKlMn", "Op-QrStUvWxYz012345", "6789abcdefg"), "base64-like run"),
+            (j("PLANE.", "EXAMPLE", ".DEV"), "host not on the allow list"),
+            (j("FOO.", "ACME-CORP", ".COM"), "host not on the allow list"),
+            (j("ambysto-eta", ".Vercel", ".app"), "Vercel deployment host"),
+            (j("~/.claude/projects/", "-home-", "someone-work-ambysto/memory/x.md"), "encoded home path"),
+            (j("/Us", "ers/", "someone/work"), "absolute home path"),
+            (j("10.0", ".0.5"), "IPv4 address"),
+            (j("ssh root@", "203.0", ".113.9"), "IPv4 address"),
+            (j("//plane.", "example", ".dev/api"), "URL host not on the allow list"),
+            (j("Authorization: Bearer ", "AbCdEfGh12345678", "IjKl"), "bearer token"),
+            (j("token: ", "a1b2c3d4e5f6g7h8i9"), "credential assignment"),
         ]
         for value, reason in cases:
             with self.subTest(value=value):
@@ -252,6 +269,22 @@ class SecretTests(Base):
             "http://localhost:18080 and APS-36",
             "the Vercel project ambysto-optimer",
             "timestamp 20261023095905123",
+            "GitHub token: read:packages only, in ~/vms/secrets/ghpkg.token",
+            "The secret: DPAPI-encrypted, never printed",
+            "signtool sign /tr http://timestamp.digicert.com /td sha256",
+            "a placeholder such as https://example.com/path",
+            "Windows build 10.0.26100.1742 and ports on 0.0.0.0, host 127.0.0.1",
+            "SIC tickets: Bối cảnh / Đã làm / Tiêu chí xong, as description_html",
+            "snapshot ambysto-testbed-2026-10-22-apps and `vm-restore.sh ambysto-testbed-wsl-2026-10-22`",
+            "`ssh win11-test powershell -NoProfile -Command Get-ChildItem C:\\Ambysto\\tools`",
+            "`gh api repos/ambysto/ambysto-memory/pulls/3 -f base=main --jq .base.ref`",
+            "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+            "the listing ~/.claude/projects/-home-*-work-ambysto*/memory/*.md",
+            "PLANE_API_KEY lives in the plane server env",
+            'scp build.zip "win11:C:/Users/Ramune/Desktop/"',
+            "windows/src/Ambysto/Lean/Core/Measure/ScanRun.cs",
+            "HKCU/Software/Microsoft/Windows/CurrentVersion and AmbystoLeanCoreTestsFindTempFinderTests",
+            "ambysto-testbed-2026-10-22-apps-Windows and Ambysto/Kit/License/Windows/Tests",
         ]
         for value in allowed:
             with self.subTest(value=value):
@@ -275,6 +308,52 @@ class StagedTests(Base):
         self.assertPass("--staged")  # not staged yet
         self.repo.git("add", "lessons/a.md")
         self.assertFail("GitHub token", "--staged")
+
+    def commit_clean(self):
+        self.repo.write("lessons/a.md", lesson())
+        self.repo.index()
+        self.repo.git("add", "-A")
+        self.repo.git("commit", "-qm", "clean")
+
+    def test_staged_deletion_is_not_read(self):
+        self.commit_clean()
+        self.repo.git("rm", "-q", "lessons/a.md")
+        self.repo.write("INDEX.md", check.render_index([]))
+        self.repo.git("add", "INDEX.md")
+        self.assertPass("--staged")
+
+    def test_staged_rename_is_checked_under_the_new_name(self):
+        self.commit_clean()
+        self.repo.git("mv", "lessons/a.md", "lessons/Bad_Name.md")
+        self.assertFail("lessons/Bad_Name.md:0: lesson file name must be a slug", "--staged")
+
+    def test_partially_staged_file_checks_the_staged_part(self):
+        self.commit_clean()
+        token = j("gh", "p_", "A1b2C3d4E5f6G7h8I9j0K1l2")
+        self.repo.write("notes.txt", "clean line\n")
+        self.repo.git("add", "notes.txt")
+        self.repo.write("notes.txt", "clean line\n%s\n" % token)  # unstaged addition
+        self.assertPass("--staged")
+        self.assertFail("GitHub token")  # the working tree holds it
+
+    def test_non_ascii_and_spaced_file_names(self):
+        self.commit_clean()
+        token = j("gh", "p_", "A1b2C3d4E5f6G7h8I9j0K1l2")
+        self.repo.write("ghi chú/bối cảnh.txt", "has %s\n" % token)
+        self.repo.git("add", "-A")
+        self.assertFail("ghi chú/bối cảnh.txt:1: refused: GitHub token", "--staged")
+        self.assertFail("ghi chú/bối cảnh.txt:1: refused: GitHub token")
+
+    def test_index_is_deterministic(self):
+        self.repo.write("lessons/b.md", lesson(title="Beta", kind="workflow"))
+        self.repo.write("lessons/a.md", lesson(title="alpha", kind="workflow"))
+        self.repo.write("lessons/c.md", lesson(title="Gamma", kind="convention"))
+        self.repo.index()
+        first = self.repo.read("INDEX.md")
+        self.repo.index()
+        self.assertEqual(first, self.repo.read("INDEX.md"))
+        lines = [l for l in first.splitlines() if l.startswith("- ")]
+        self.assertEqual([l.split("](")[0] for l in lines], ["- [Gamma", "- [alpha", "- [Beta"])
 
     def test_pre_commit_hook_refuses_a_token(self):  # proof 2
         hooks = os.path.join(self.repo.root, "hooks")
