@@ -313,3 +313,76 @@ issues after the PASS, all fixed:
   the deferred details and lost the Vercel team slug. (5) details restored in
   `win11-vm-state`, `license-key-plan`, `measure-before-offering-limits`. (6) APS-33 named.
   (7) `use-vnc-not-rdp` validated date set to its evidence.
+- **Step 4a (2026-10-23 11:46):** claudecode-guide PR #18 merged (Sir accepted the
+  `global/` path exception). `install.py` (skills `handoff` and the template, backed up)
+  and `install.py --global` (backup `~/.claude/CLAUDE.md.bak-20261023-114645`); the
+  only change to `~/.claude/CLAUDE.md` was the new "Shared memory" section.
+  `install.py --check` exit 0 (proof 9; the guide's `check.py` PASS on the merged
+  `main`). Note: `install.py --help` is not an option, it ran the default install.
+- **Step 4b (2026-10-23 11:53):** PR #8 merged after three hard-review rounds (round 3
+  allowed by Sir with a simpler design). `wire.py` created `~/.codex/AGENTS.md`,
+  `~/.grok/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/GEMINI.md`, and added
+  the block to `~/.hermes/SOUL.md` (backup `SOUL.md.bak-20261023-115335`; the owner's
+  877 bytes byte-identical, mode 600 kept). `wire.py --check` exit 0 for all six.
+- **Step 5 (2026-10-23 12:13):** the diff was hard-reviewed before it was written (round
+  1 FAIL: `vm-sync.sh` dropped and five details in no lesson; fixed, the details merged
+  as PR #10; round 2 PASS). Applied only after checking the live file still equalled the
+  reviewed "before"; backup `~/.claude/CLAUDE.md.bak-20261023-121317`. Size 21 593 →
+  15 415 bytes (proof 4); the diff is `proof/claude-md-machine-section.diff` (checked by
+  `check.py`). After it: `install.py --check` exit 0, `wire.py --check` exit 0. The
+  listing before step 5 held 20 files (A1-A20, all ticked).
+- **Step 4b follow-up (PR #12, 2026-10-23 12:5x):** proof 10 showed Codex never read
+  `~/.codex/AGENTS.md`: Orca runs it with `CODEX_HOME` set to a home per account. Sir chose
+  to wire every Codex home (`~/.codex`, `$CODEX_HOME` under home, each Orca account home,
+  Orca's runtime home). Hard review: round 1 FAIL (MAJOR: a symlink could lead the write
+  outside home; fixed with a realpath check at the write), round 2 PASS. A file the round-1
+  reviewer created in the real Orca home through an inherited `CODEX_HOME` while running a
+  mutant was traced (timestamps match) and the tests now clear `CODEX_HOME`; its content is
+  the block. `wire.py` then wrote the runtime home; `wire.py --check` exit 0.
+
+## Proof (step 6, 2026-10-23)
+
+1. `python3 scripts/check.py` PASS on `main` (29 active lessons with this PR);
+   `python3 -m unittest scripts/test_check.py scripts/test_wire.py`: 64 tests OK, including
+   the mutations of intent criteria 1, 2 and 7 (missing evidence, `applies_when` without a
+   trigger word, stale `INDEX.md`, planted secrets both ways, a lesson 91 days old listed as
+   STALE). A mutant restoring the old `\b` hex rule fails 4 subtests.
+2. The pre-commit hook refuses a commit with a planted GitHub token
+   (`test_pre_commit_hook_refuses_a_token`, a real commit in a temp repo); the hook has run
+   on every commit of this ticket.
+3. Migration table: 20 auto-memory rows (A1-A20) = the listing's 20 files; 13 machine
+   rows (C1-C13) and G1; every row ticked by Sir. No auto-memory file was written after
+   11:07 (the Orca copy); the listing is final.
+4. `~/.claude/CLAUDE.md`: 20 179 bytes at the start of the session, 21 593 before step 5
+   (other sessions' guide installs and the Shared memory section), 15 415 after step 5;
+   every removed line maps to a row (`proof/claude-md-machine-section.diff`, hard-reviewed
+   row by row). Since then another session added one owner-decision bullet (15 763 bytes);
+   it is a rule and stays.
+5. Auto-memory off: see Step 3 above (no write with the setting off; the control with it
+   on wrote `memory/`).
+6. Claude Code, headless `claude -p --permission-mode bypassPermissions` in
+   `ambysto-space-asp24`, no path given: listed the five latest APS tickets, no 403, named
+   `plane-rest-api`. It read the clone without pulling (it was on a branch) and said so.
+7. Stale lessons: covered by the test in 1.
+8. Not run: Mac, owner step (list and migrate the Mac's auto-memory, clone, hook, setting,
+   one recall).
+9. Guide: `check.py` PASS and `install.py --check` exit 0 after PR #18 was merged and
+   installed, again after step 5.
+10. Other harnesses, same prompt, no path, `wire.py --check` exit 0 first:
+    - tier 2: **Grok Build** `grok -p … --always-approve` named `plane-rest-api`, no 403;
+      **Muse** `muse exec --yolo` named it, no 403; **Codex** `codex exec
+      --dangerously-bypass-approvals-and-sandbox` answered through its own Plane MCP tool
+      and used no lesson; asked with no tools whether it sees the "Shared memory"
+      section it said "No" (Orca's `CODEX_HOME`), after PR #12 "Yes" with the exact first
+      sentence. Oh My Pi, Cursor: not run: not installed.
+    - tier 3: **Antigravity** `agy -p … --dangerously-skip-permissions` named it, no 403;
+      **Hermes** `hermes -z` named it, no 403 (its APS-38 "Done" was right: the state
+      changed at 12:18, between runs); **OpenCode** first not run (free default model
+      deprecated, no provider), then after Sir signed in through Orca:
+      `XDG_DATA_HOME=<Orca data> opencode run --standalone --auto --model
+      opencode-go/glm-5.3` named it, no 403. Codewhale, DeepSeek Harness: not run: not
+      installed.
+    The worktree stayed clean through every run.
+
+Lessons added from this step: `codex-under-orca-reads-codex-home`,
+`run-opencode-with-orca-account`, `isolate-home-env-in-tests`.
