@@ -5,7 +5,7 @@ Holds the lessons, decisions and references that every Ambysto session needs, wh
 Cost of a bug: a wrong or stale lesson is followed by every later session, silently; a lesson moved out of `CLAUDE.md` and lost is guidance no session gets any more; a secret written here reaches GitHub.
 
 ## Verify
-- `python3 scripts/check.py`: every lesson's frontmatter and shape, `INDEX.md` equal to the lessons, no secret-like text, stale lessons listed (from the plan; not written yet).
+- `python3 scripts/check.py`: every lesson's frontmatter and shape, `INDEX.md` equal to the lessons, no secret-like text, stale lessons listed (from the plan; not written yet). The same check runs as the git pre-commit hook of each clone.
 - Owner-only or other-machine checks: cloning on the Mac and a Mac session reading the memory ("not run: Mac, owner step").
 
 ## HARD: the main session does it directly, then hard-reviewer
@@ -23,9 +23,9 @@ Cost of a bug: a wrong or stale lesson is followed by every later session, silen
 ## Rules
 - A lesson reaches `main` only through a PR the owner merges. Agents draft; they never approve.
 - Supersede, never delete: an outdated lesson gets `status: superseded` and `superseded_by`, and stays.
-- Nothing secret or identifying: no keys, tokens, passwords, hostnames, workspace slugs, project or account ids. Say where the value lives instead ("the Plane base URL in `~/.claude.json`, `plane` server env").
+- Nothing secret or identifying (the exact refused and allowed lists are in the intent, "What counts as secret or identifying"): no keys, tokens, passwords, ids, e-mail addresses, or hostnames of real services. Say where the value lives instead ("the Plane base URL in `~/.claude.json`, `plane` server env"). Local paths, SSH aliases and the test bed's names are allowed.
 - Every lesson names its evidence (date, repo, ticket or PR). No evidence, no lesson.
-- Git: English only; the `ambysto` account (`gh api user --jq .login` before the first PR of a session; if it is not `ambysto`, stop and ask; never `gh auth switch`); repo-local author `Ambysto`; branches `aps-NN-slug`, never a push to `main` (the skeleton commit was the only one); commits "Summary (APS-NN)" with no Co-Authored-By trailer, PR bodies with no "Generated with" line; do not merge without being asked.
+- Git: English only; the `ambysto` account (`gh api user --jq .login` before the first PR of a session; if it is not `ambysto`, stop and ask; never `gh auth switch`); author `Ambysto` (set by the `includeIf` in `~/work/ambysto/.gitconfig`); branches `aps-NN-slug`, never a push to `main` (the skeleton commit was the only one); commits "Summary (APS-NN)" with no Co-Authored-By trailer, PR bodies with no "Generated with" line; do not merge without being asked.
 - Issue tracker: Plane, project APS, written in English. Each ticket gets a GitHub issue titled `[APS-NN] …`; a phase PR body starts with "Part of #<issue>. Plane: APS-NN.", and only the last PR of a ticket says "Closes #<issue>". Never put the Plane host or ids on GitHub.
 
 ## Session state
