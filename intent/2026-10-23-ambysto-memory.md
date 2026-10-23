@@ -1,5 +1,5 @@
 ---
-status: planned   # draft → approved → planned → building → verified → shipped (PR #n)
+status: building  # draft → approved → planned → building → verified → shipped (PR #n)
 ---
 # ambysto-memory: one reviewed memory for every Ambysto session
 
@@ -91,7 +91,7 @@ the project repos, that every Ambysto session reads:
   one changes what it does. No hook, no tool.
 - **Review:** an agent drafts a lesson in a PR; the owner merging the PR is the approval.
 - **Migration:** every auto-memory item for the Ambysto repos (the listing
-  `~/.claude/projects/-home-dc-group-work-ambysto*/memory/*.md` minus `MEMORY.md`, taken
+  `~/.claude/projects/-home-*-work-ambysto*/memory/*.md` minus `MEMORY.md`, taken
   after auto-memory is off, so it cannot grow afterwards), and the lessons and machine facts
   in `~/.claude/CLAUDE.md`, each moved into a lesson, kept where they are, or dropped, with
   the owner approving the list item by item. Rules that every session must follow stay in

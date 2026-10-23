@@ -28,11 +28,18 @@ except where noted.
   - secret and identifying text, in every tracked text file (lessons, INDEX, README,
     AGENTS.md, CLAUDE.md, intent, scripts): credential shapes (`ghp_`, `github_pat_`,
     `sk-`, `xox`, AWS key ids, PEM headers, `password=`/`token=`/`key=` with a value),
-    hex runs of 13+ characters (so full commit SHAs are refused, short ones up to 12 pass)
-    and base64 runs of 32+, UUIDs, e-mail addresses, `/home/<name>/` paths, and hosts.
+    the Plane key prefix, `Bearer` values, hex runs of 13+ characters (so full commit
+    SHAs are refused, short ones up to 12 pass) and base64-like runs of 32+ with mixed case
+    and at least 4.4 bits of entropy per character, all bounded by lookarounds rather than
+    `\b` (a `_` prefix must not hide a key), UUIDs, e-mail addresses, `/home/<name>/` and
+    `/Users/<name>/` paths (not after a drive letter), Claude Code's encoded
+    `-home-<name>-…` folder names, IPv4 addresses (not loopback, `0.0.0.0` or QEMU's
+    `10.0.2.2`, and not a version number), and hosts (case-insensitive). Accepted limit:
+    an underscore-joined identifier longer than about 60 characters (a long xUnit test
+    name) can measure over 4.4 bits and be refused; shorten it or quote the class name.
     Hosts are found three ways, and a host passes only when it equals an allowed domain or
     ends in `.` + one (so `nuget.pkg.github.com` passes through `github.com`):
-    1. every `scheme://host` URL (any scheme);
+    1. every URL with a scheme (any scheme), or starting `//`, by its host;
     2. every bare `label(.label)+.tld` token whose last label is in a short TLD list
        (`com net org io dev ai co me cloud xyz vn`), so file names (`check.py`, `INDEX.md`,
        `win11.qcow2`, `AmbystoLean.dll`, `vm-gates.sh`, `Lean.app`) never match;
@@ -40,7 +47,8 @@ except where noted.
        `.dev`/`.com` deployment hosts are already caught by 2).
     Allowed domains (a list in the script, changed only by a reviewed PR): `github.com`,
     `githubusercontent.com`, `microsoft.com`, `nuget.org`, `python.org`, `anthropic.com`,
-    `claude.com`, `ambysto.com`. Allowed by rule: `~` paths, the SSH aliases and test-bed
+    `claude.com`, `ambysto.com`, `digicert.com` (signtool's timestamp server), and the
+    reserved placeholders `example.com`, `example.org`, `example.net`. Allowed by rule: `~` paths, the SSH aliases and test-bed
     names listed in the intent, ticket ids, `localhost`. An allow comment per line is
     **not** offered.
   - stale: lessons whose `last_validated` is more than 90 days old are listed under
@@ -49,7 +57,7 @@ except where noted.
   directions (a planted bad value fails; the allowed values pass: the file names above,
   a 7- and a 12-char SHA, `nuget.pkg.github.com`, `tune.ambysto.com`, `ssh win11`,
   `C:\Users\ambytest\src`, `\\localhost\ambynet`; refused: a 40-char SHA, a made-up
-  `plane.example.dev`, `x.vercel.app`, a UUID, an e-mail), plus the mutations named in
+  host under `.dev`, a Vercel deployment host, a UUID, an e-mail), plus the mutations named in
   intent criteria 1, 2 and 7. The planted values are built at run time (joined from
   pieces), so the test file itself holds none and `check.py` PASSes on the real repo.
 - `hooks/pre-commit`: `exec python3 scripts/check.py`. `README.md`: layout, the lesson
@@ -75,7 +83,7 @@ except where noted.
 - `~/.claude/settings.json`: add `"autoMemoryEnabled": false` (backup first, as
   `settings.json.bak-<timestamp>`; nothing else in the file changes).
 - Then take the listing again
-  (`ls ~/.claude/projects/-home-dc-group-work-ambysto*/memory/*.md | grep -v MEMORY.md`).
+  (`ls ~/.claude/projects/-home-*-work-ambysto*/memory/*.md | grep -v MEMORY.md`).
   Any file not in the table goes into it and through step 2's review (a follow-up commit
   on `aps-36-lessons` if that PR is still open, otherwise its own small PR).
 - Not a PR: a machine change, recorded in the plan's proof section.
@@ -145,7 +153,7 @@ Fate: **lesson** (moved into `lessons/<slug>`), **stays** (left where it is), **
 (already recorded elsewhere, named). Owner tick: ☐ until the owner agrees in the plan
 review; a changed row is rewritten, not ticked.
 
-### Auto-memory (listing 2026-10-23, 13 files)
+### Auto-memory (listing 2026-10-23: 13 files at plan acceptance, 14 at 10:13)
 
 | # | Source (`~/.claude/projects/…/memory/`) | Fate | Lesson / where it already is | Owner |
 |---|---|---|---|---|
@@ -162,6 +170,7 @@ review; a changed row is rewritten, not ticked.
 | A11 | steady `vm-files-to-desktop.md` | lesson | `vm-files-to-desktop` (convention) | ☑ 2026-10-23 |
 | A12 | steady `plane-sic-rest-api.md` | lesson, merged into A1 | `plane-rest-api`. "SIC ticket names in Vietnamese" is in Steady's `CLAUDE.md`; the description sections (Bối cảnh / Đã làm / Tiêu chí xong, as `description_html`) cannot go there (its docs-language test), so they go into the lesson | ☑ 2026-10-23 |
 | A13 | steady `windows-test-vm.md` | lesson, merged with C2/C8 | `win11-vm-layout` and `win11-snapshots` (reference); `clean-no-globalsign` = Steady's SIC-130 repro | ☑ 2026-10-23 |
+| A14 | ambysto (root) `address-owner-as-sir.md` (written 2026-10-23 10:13 by another session, after plan acceptance) | lesson | `address-owner-as-sir` (convention, all): the owner is addressed as "Sir" ("Dạ Sir, …" in Vietnamese), naturally, not in every sentence | ☐ |
 
 ### `~/.claude/CLAUDE.md`, machine section (after the guide block, 12 KB)
 
