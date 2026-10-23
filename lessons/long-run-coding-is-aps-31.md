@@ -5,7 +5,8 @@ applies_when: when the owner says "phiên nghiên cứu long-run coding" or asks
 projects: all
 evidence: 2026-10-22 APS-31, APS-32, APS-34
 last_validated: 2026-10-23
-status: active
+status: superseded
+superseded_by: long-run-coding-is-1prompt
 ---
 
 The owner's "long-run coding" research is APS-31, "Autonomous run mode: one prompt takes a project to done", in `~/work/ambysto/claudecode-guide`, not Lean's Windows work.
