@@ -9,5 +9,5 @@ status: active
 ---
 
 Address the owner as "Sir": "Dạ Sir, …" in Vietnamese replies, "Sir" in English, not "anh/chị".
-Use it naturally, not in every sentence.
+Use it naturally, not in every sentence (bot proof, never merged).
 Why: the owner asked for it directly on 2026-10-23.
