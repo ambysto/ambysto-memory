@@ -313,3 +313,21 @@ issues after the PASS, all fixed:
   the deferred details and lost the Vercel team slug. (5) details restored in
   `win11-vm-state`, `license-key-plan`, `measure-before-offering-limits`. (6) APS-33 named.
   (7) `use-vnc-not-rdp` validated date set to its evidence.
+- **Step 4a (2026-10-23 11:46):** claudecode-guide PR #18 merged (Sir accepted the
+  `global/` path exception). `install.py` (skills `handoff` and the template, backed up)
+  and `install.py --global` (backup `~/.claude/CLAUDE.md.bak-20261023-114645`); the
+  only change to `~/.claude/CLAUDE.md` was the new "Shared memory" section.
+  `install.py --check` exit 0 (proof 9; the guide's `check.py` PASS on the merged
+  `main`). Note: `install.py --help` is not an option, it ran the default install.
+- **Step 4b (2026-10-23 11:53):** PR #8 merged after three hard-review rounds (round 3
+  allowed by Sir with a simpler design). `wire.py` created `~/.codex/AGENTS.md`,
+  `~/.grok/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/GEMINI.md`, and added
+  the block to `~/.hermes/SOUL.md` (backup `SOUL.md.bak-20261023-115335`; the owner's
+  877 bytes byte-identical, mode 600 kept). `wire.py --check` exit 0 for all six.
+- **Step 5 (2026-10-23 12:13):** the diff was hard-reviewed before it was written (round
+  1 FAIL: `vm-sync.sh` dropped and five details in no lesson; fixed, the details merged
+  as PR #10; round 2 PASS). Applied only after checking the live file still equalled the
+  reviewed "before"; backup `~/.claude/CLAUDE.md.bak-20261023-121317`. Size 21 593 →
+  15 415 bytes (proof 4); the diff is `proof/claude-md-machine-section.diff` (checked by
+  `check.py`). After it: `install.py --check` exit 0, `wire.py --check` exit 0. The
+  listing before step 5 held 20 files (A1-A20, all ticked).
