@@ -55,6 +55,11 @@ A lesson that turns out wrong or outdated: say so, and draft its replacement (be
      `superseded_by: <new-slug>`.
 3. `python3 scripts/check.py --write-index` (regenerates `INDEX.md`, then checks), commit,
    push, open a PR. The owner's merge is the approval. Never merge it yourself.
+4. Put the clone back on `main` (`git checkout main`): every session reads this one clone,
+   and recall reads whatever branch it is on. Better still, draft in a worktree of your own
+   (`git worktree add ../ambysto-memory-<slug> -b lesson-<slug> main`) and remove it after.
+5. If `INDEX.md` conflicts with another lesson PR, rebase on `main` and run
+   `python3 scripts/check.py --write-index` again; never edit `INDEX.md` by hand.
 
 Not a lesson: a summary of what happened, a one-off fact, anything true only on one day
 or branch, a rule for one project only (that goes in the project's own `CLAUDE.md`), or
