@@ -12,6 +12,10 @@ Tracked in Plane as APS-36.
   text, stale lessons (over 90 days) listed. `python3 scripts/check.py --write-index`
   after changing a lesson.
 - `hooks/pre-commit`: runs the check on what is staged.
+- `scripts/wire.py`: writes the recall paragraph (`scripts/recall.md`, the same text as the
+  claudecode-guide "Shared memory" section) between markers into each installed harness's
+  global instruction file, with a backup; `--check` reports any that miss it. Run it after
+  installing a new harness or changing `recall.md`.
 
 ## Set up a clone
 
@@ -26,6 +30,6 @@ GitHub web page get past it; the owner's PR review is the last check.
 ## Test
 
 ```sh
-python3 -m unittest scripts/test_check.py
+python3 -m unittest scripts/test_check.py scripts/test_wire.py
 python3 scripts/check.py
 ```
