@@ -153,14 +153,14 @@ Fate: **lesson** (moved into `lessons/<slug>`), **stays** (left where it is), **
 (already recorded elsewhere, named). Owner tick: ☐ until the owner agrees in the plan
 review; a changed row is rewritten, not ticked.
 
-### Auto-memory (listing 2026-10-23: 13 files at plan acceptance, 14 at 10:13)
+### Auto-memory (listing 2026-10-23: 13 files at plan acceptance, 14 at 10:13, 16 when auto-memory was turned off at 10:50)
 
 | # | Source (`~/.claude/projects/…/memory/`) | Fate | Lesson / where it already is | Owner |
 |---|---|---|---|---|
 | A1 | gate `plane-agd-rest-api.md` | lesson, merged with A12 | `plane-rest-api` (reference): key, base URL and workspace slug in `~/.claude.json` `plane` env, read at run time and never printed; custom User-Agent or HTTP 403; links POST; auto mode blocks reading the key. Project ids, states, the host and the workspace slug are not copied: read them at run time. Ticket/issue/PR naming already in Gate's `CLAUDE.md` | ☑ 2026-10-23 |
 | A2 | kit `measure-before-offering-limits.md` | lesson | `measure-before-offering-limits` (correction, all) | ☑ 2026-10-23 |
 | A3 | kit `suite-positioning-jetpack.md` | lesson | `suite-positioning-jetpack` (decision): positioning + deferred landing items. Vercel domains written as project names, not hostnames | ☑ 2026-10-23 |
-| A4 | space `autonomous-run-aps31.md` | lesson (short) | `long-run-coding-is-aps-31` (reference): the owner's phrase "phiên nghiên cứu long-run coding" means APS-31 in claudecode-guide. The state snapshot is dropped: it is in Plane APS-31/32/34 and the guide's intent files | ☑ 2026-10-23 |
+| A4 | space `autonomous-run-aps31.md` (its state part updated 10:45, still dropped) | lesson (short) | `long-run-coding-is-aps-31` (reference): the owner's phrase "phiên nghiên cứu long-run coding" means APS-31 in claudecode-guide. The state snapshot is dropped: it is in Plane APS-31/32/34 and the guide's intent files | ☑ 2026-10-23 |
 | A5 | space `check-branch-before-amend.md` | dropped + lesson | the branch check is in the guide's working practice ("After any subagent has run, check the branch…"). New lessons `retarget-prs-before-deleting-base` (gotcha) and `give-reviewers-a-diff-range` (workflow: pass `main..branch`, do not let a reviewer check out) | ☑ 2026-10-23 |
 | A6 | space `loop-assessment-framing.md` | lesson | `loop-assessment-framing` (decision) | ☑ 2026-10-23 |
 | A7 | space `sure-over-fast.md` | lesson | `sure-over-fast` (correction, all) | ☑ 2026-10-23 |
@@ -171,6 +171,8 @@ review; a changed row is rewritten, not ticked.
 | A12 | steady `plane-sic-rest-api.md` | lesson, merged into A1 | `plane-rest-api`. "SIC ticket names in Vietnamese" is in Steady's `CLAUDE.md`; the description sections (Bối cảnh / Đã làm / Tiêu chí xong, as `description_html`) cannot go there (its docs-language test), so they go into the lesson | ☑ 2026-10-23 |
 | A13 | steady `windows-test-vm.md` | lesson, merged with C2/C8 | `win11-vm-layout` and `win11-snapshots` (reference); `clean-no-globalsign` = Steady's SIC-130 repro | ☑ 2026-10-23 |
 | A14 | ambysto (root) `address-owner-as-sir.md` (written 2026-10-23 10:13 by another session, after plan acceptance) | lesson | `address-owner-as-sir` (convention, all): the owner is addressed as "Sir" ("Dạ Sir, …" in Vietnamese), naturally, not in every sentence | ☑ 2026-10-23 |
+| A15 | space `flag-owner-mistakes.md` (written 10:41 by a running session) | lesson | `flag-owner-mistakes` (correction, all) | ☑ 2026-10-23 |
+| A16 | space `close-duplicate-tickets.md` (written 10:42 by a running session) | lesson | `close-duplicate-tickets` (convention, all); the Cancelled state id is not copied: looked up by name | ☑ 2026-10-23 |
 
 ### `~/.claude/CLAUDE.md`, machine section (after the guide block, 12 KB)
 
@@ -283,3 +285,18 @@ issues after the PASS, all fixed:
 5. NIT: `vn` added; three ways; extra deployment suffixes removed.
 6. NIT: `AGENTS.md` displaces `CLAUDE.md` for some harnesses. Fixed: its first line points
    to `CLAUDE.md`.
+
+## Proof record
+
+- **Step 3 (2026-10-23 10:50):** `"autoMemoryEnabled": false` added to
+  `~/.claude/settings.json`, nothing else changed (key diff checked); backup
+  `~/.claude/settings.json.bak-20261023-105038`. Proof 5: a headless
+  `claude -p --permission-mode bypassPermissions` session in an empty scratch folder,
+  asked to remember "the test word is pelican", wrote no file under
+  `~/.claude/projects/*/memory` (it wrote the fact into the folder's `CLAUDE.md`
+  instead). Control: the same prompt with `--settings '{"autoMemoryEnabled": true}'`
+  wrote `memory/MEMORY.md` and `memory/test-word.md`, so the check can see a write; the
+  control's folder was removed. The listing taken afterwards held 16 files: A15 and A16
+  were written at 10:41 and 10:42 by running sessions, before the switch. Sessions
+  started before 10:50 may still write until they restart; the listing is taken again
+  before step 5.
