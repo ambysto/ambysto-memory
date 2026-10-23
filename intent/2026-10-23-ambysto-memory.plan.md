@@ -1,5 +1,5 @@
 ---
-status: draft   # draft → accepted (owner) ; the intent's status moves to planned on acceptance
+status: accepted # draft → accepted (owner) ; the intent's status moves to planned on acceptance
 ---
 # Plan: ambysto-memory v1 (APS-36)
 
@@ -149,39 +149,39 @@ review; a changed row is rewritten, not ticked.
 
 | # | Source (`~/.claude/projects/…/memory/`) | Fate | Lesson / where it already is | Owner |
 |---|---|---|---|---|
-| A1 | gate `plane-agd-rest-api.md` | lesson, merged with A12 | `plane-rest-api` (reference): key, base URL and workspace slug in `~/.claude.json` `plane` env, read at run time and never printed; custom User-Agent or HTTP 403; links POST; auto mode blocks reading the key. Project ids, states, the host and the workspace slug are not copied: read them at run time. Ticket/issue/PR naming already in Gate's `CLAUDE.md` | ☐ |
-| A2 | kit `measure-before-offering-limits.md` | lesson | `measure-before-offering-limits` (correction, all) | ☐ |
-| A3 | kit `suite-positioning-jetpack.md` | lesson | `suite-positioning-jetpack` (decision): positioning + deferred landing items. Vercel domains written as project names, not hostnames | ☐ |
-| A4 | space `autonomous-run-aps31.md` | lesson (short) | `long-run-coding-is-aps-31` (reference): the owner's phrase "phiên nghiên cứu long-run coding" means APS-31 in claudecode-guide. The state snapshot is dropped: it is in Plane APS-31/32/34 and the guide's intent files | ☐ |
-| A5 | space `check-branch-before-amend.md` | dropped + lesson | the branch check is in the guide's working practice ("After any subagent has run, check the branch…"). New lessons `retarget-prs-before-deleting-base` (gotcha) and `give-reviewers-a-diff-range` (workflow: pass `main..branch`, do not let a reviewer check out) | ☐ |
-| A6 | space `loop-assessment-framing.md` | lesson | `loop-assessment-framing` (decision) | ☐ |
-| A7 | space `sure-over-fast.md` | lesson | `sure-over-fast` (correction, all) | ☐ |
-| A8 | space `windows-app-order.md` | lesson, merged with C5 | `windows-port-order` (decision). Its "signing key due before the first Pro release (Lean)" is superseded by the 2026-10-22 decision in C6 and is written that way | ☐ |
-| A9 | space `windows-port-loop.md` | lesson + dropped | `windows-port-loop-design` (decision): steps [0]–[5] and why. `gitignore-hides-fixture-folders` (gotcha: `fixtures/` in `.gitignore` hid every `scripts/fixtures/`; check `git check-ignore`). `one-vm-clone-per-worktree` (gotcha). Dropped: the progress log (in git history, Plane, PRs); the probe facts (in `~/vms/README.md`); "refuse online-only cloud files" (in Lean's `intent/2026-10-16-lean-windows-v1.md`); stray processes after a stop (guide working practice) | ☐ |
-| A10 | tune `ambysto-dmg-builds.md` | lesson | `ambysto-dmg-builds` (reference): release `dmgs-2026-10-15` in `ambysto/ambysto-assets`; the Tune site needs `site/dl/AmbystoTune.dmg` put back before each deploy | ☐ |
-| A11 | steady `vm-files-to-desktop.md` | lesson | `vm-files-to-desktop` (convention) | ☐ |
-| A12 | steady `plane-sic-rest-api.md` | lesson, merged into A1 | `plane-rest-api`. "SIC ticket names in Vietnamese" is in Steady's `CLAUDE.md`; the description sections (Bối cảnh / Đã làm / Tiêu chí xong, as `description_html`) cannot go there (its docs-language test), so they go into the lesson | ☐ |
-| A13 | steady `windows-test-vm.md` | lesson, merged with C2/C8 | `win11-vm-layout` and `win11-snapshots` (reference); `clean-no-globalsign` = Steady's SIC-130 repro | ☐ |
+| A1 | gate `plane-agd-rest-api.md` | lesson, merged with A12 | `plane-rest-api` (reference): key, base URL and workspace slug in `~/.claude.json` `plane` env, read at run time and never printed; custom User-Agent or HTTP 403; links POST; auto mode blocks reading the key. Project ids, states, the host and the workspace slug are not copied: read them at run time. Ticket/issue/PR naming already in Gate's `CLAUDE.md` | ☑ 2026-10-23 |
+| A2 | kit `measure-before-offering-limits.md` | lesson | `measure-before-offering-limits` (correction, all) | ☑ 2026-10-23 |
+| A3 | kit `suite-positioning-jetpack.md` | lesson | `suite-positioning-jetpack` (decision): positioning + deferred landing items. Vercel domains written as project names, not hostnames | ☑ 2026-10-23 |
+| A4 | space `autonomous-run-aps31.md` | lesson (short) | `long-run-coding-is-aps-31` (reference): the owner's phrase "phiên nghiên cứu long-run coding" means APS-31 in claudecode-guide. The state snapshot is dropped: it is in Plane APS-31/32/34 and the guide's intent files | ☑ 2026-10-23 |
+| A5 | space `check-branch-before-amend.md` | dropped + lesson | the branch check is in the guide's working practice ("After any subagent has run, check the branch…"). New lessons `retarget-prs-before-deleting-base` (gotcha) and `give-reviewers-a-diff-range` (workflow: pass `main..branch`, do not let a reviewer check out) | ☑ 2026-10-23 |
+| A6 | space `loop-assessment-framing.md` | lesson | `loop-assessment-framing` (decision) | ☑ 2026-10-23 |
+| A7 | space `sure-over-fast.md` | lesson | `sure-over-fast` (correction, all) | ☑ 2026-10-23 |
+| A8 | space `windows-app-order.md` | lesson, merged with C5 | `windows-port-order` (decision). Its "signing key due before the first Pro release (Lean)" is superseded by the 2026-10-22 decision in C6 and is written that way | ☑ 2026-10-23 |
+| A9 | space `windows-port-loop.md` | lesson + dropped | `windows-port-loop-design` (decision): steps [0]–[5] and why. `gitignore-hides-fixture-folders` (gotcha: `fixtures/` in `.gitignore` hid every `scripts/fixtures/`; check `git check-ignore`). `one-vm-clone-per-worktree` (gotcha). Dropped: the progress log (in git history, Plane, PRs); the probe facts (in `~/vms/README.md`); "refuse online-only cloud files" (in Lean's `intent/2026-10-16-lean-windows-v1.md`); stray processes after a stop (guide working practice) | ☑ 2026-10-23 |
+| A10 | tune `ambysto-dmg-builds.md` | lesson | `ambysto-dmg-builds` (reference): release `dmgs-2026-10-15` in `ambysto/ambysto-assets`; the Tune site needs `site/dl/AmbystoTune.dmg` put back before each deploy | ☑ 2026-10-23 |
+| A11 | steady `vm-files-to-desktop.md` | lesson | `vm-files-to-desktop` (convention) | ☑ 2026-10-23 |
+| A12 | steady `plane-sic-rest-api.md` | lesson, merged into A1 | `plane-rest-api`. "SIC ticket names in Vietnamese" is in Steady's `CLAUDE.md`; the description sections (Bối cảnh / Đã làm / Tiêu chí xong, as `description_html`) cannot go there (its docs-language test), so they go into the lesson | ☑ 2026-10-23 |
+| A13 | steady `windows-test-vm.md` | lesson, merged with C2/C8 | `win11-vm-layout` and `win11-snapshots` (reference); `clean-no-globalsign` = Steady's SIC-130 repro | ☑ 2026-10-23 |
 
 ### `~/.claude/CLAUDE.md`, machine section (after the guide block, 12 KB)
 
 | # | Bullet | Fate | Detail | Owner |
 |---|---|---|---|---|
-| C1 | "Applies to every repo… Windows only" + "Develop the Windows app only…", macOS Verify "not run" line, "work from `docs/spec/`" | stays | rules | ☐ |
-| C2 | Test environment (QEMU, cores, disks, ports, `ssh win11`) | split | stays: run in the VM never on the host, never read the guest password, the ports on `0.0.0.0` are deliberate, check it is up with `ss -ltnp \| grep 33890`. Lesson `win11-vm-layout`: process, disks, monitor socket, forwards, console | ☐ |
-| C3 | Driving the VM (`~/vms/bin` scripts, nuget pull, tokens) | split | stays: start every agent run with `vm-status.sh`; `vm-gates.sh`/`vm-sync.sh` exist (one line + pointer to `~/vms/README.md`); never a GitHub token in the VM except the one `read:packages` token; the VM never pushes. Lesson `win11-vm-scripts`: what each script does, `cmd.exe` shell, `vm-ps.sh` for quoting | ☐ |
-| C4 | Two users; Recycle Bin by API; VNC not RDP | split | stays: every build/test/proof as ambytest; Ramune only provisions; Recycle Bin tests through `vm-ui.sh`. Lessons `recycle-bin-deletes-for-good` (gotcha: the full IFileOperation list) and `use-vnc-not-rdp` (gotcha: RDP takes the console; logon + logoff wipes autologon; `vm-autologon.sh`) | ☐ |
-| C5 | Order of the Windows ports | lesson | `windows-port-order` (with A8); CLAUDE.md keeps one line: "Windows ports follow the order in lesson `windows-port-order`" | ☐ |
-| C6 | License key for Windows apps | split | stays: build on `Ambysto.Kit.License`; agents never create or use a real key; Free ships first, the key blocks only Pro; apps test entitlement through their own verifier seam. Lesson `license-key-plan` (decision: who makes the key, where, when, the 2026-10-22 change) | ☐ |
-| C7 | Private NuGet feed and DPAPI | lesson | `nuget-feed-dpapi-over-ssh` (gotcha: NU1301 over SSH, restore through `vm-ui.sh`, cache then SSH works; token expiry about 90 days from 2026-10-16) | ☐ |
-| C8 | Snapshots | split | stays: before a destructive proof, restore the default snapshot named in `~/vms/DEFAULT_SNAPSHOT`; after restoring an older layer, resync the clock first. Lesson `win11-snapshots` (reference: every layer and what it lacks) | ☐ |
-| C9 | Cloud files (AmbyCloud, OneDrive) | split | stays: OneDrive in the VM uses only the owner's test Microsoft account, never the personal one. Lesson `cloud-files-in-vm` (reference + gotcha: AmbyCloud logs fetches by pid; online-only items do not reach the bin) | ☐ |
-| C10 | Contribute only as Ambysto (no trailer) | stays | rule | ☐ |
-| C11 | GitHub accounts, `gh` and `vercel` wrappers | stays | rule | ☐ |
-| C12 | Two identities, never mixed | stays | rule | ☐ |
-| C13 | VM state 2026-10-16 (Windows build, SDKs, volumes, long paths, Defender, SCM right, Steady installed) | lesson | `win11-vm-state` (reference; `last_validated` 2026-10-16, so it ages first). The evaluation expiry 2027-01-13 stays in CLAUDE.md as one line: it blocks everything when it passes | ☐ |
+| C1 | "Applies to every repo… Windows only" + "Develop the Windows app only…", macOS Verify "not run" line, "work from `docs/spec/`" | stays | rules | ☑ 2026-10-23 |
+| C2 | Test environment (QEMU, cores, disks, ports, `ssh win11`) | split | stays: run in the VM never on the host, never read the guest password, the ports on `0.0.0.0` are deliberate, check it is up with `ss -ltnp \| grep 33890`. Lesson `win11-vm-layout`: process, disks, monitor socket, forwards, console | ☑ 2026-10-23 |
+| C3 | Driving the VM (`~/vms/bin` scripts, nuget pull, tokens) | split | stays: start every agent run with `vm-status.sh`; `vm-gates.sh`/`vm-sync.sh` exist (one line + pointer to `~/vms/README.md`); never a GitHub token in the VM except the one `read:packages` token; the VM never pushes. Lesson `win11-vm-scripts`: what each script does, `cmd.exe` shell, `vm-ps.sh` for quoting | ☑ 2026-10-23 |
+| C4 | Two users; Recycle Bin by API; VNC not RDP | split | stays: every build/test/proof as ambytest; Ramune only provisions; Recycle Bin tests through `vm-ui.sh`. Lessons `recycle-bin-deletes-for-good` (gotcha: the full IFileOperation list) and `use-vnc-not-rdp` (gotcha: RDP takes the console; logon + logoff wipes autologon; `vm-autologon.sh`) | ☑ 2026-10-23 |
+| C5 | Order of the Windows ports | lesson | `windows-port-order` (with A8); CLAUDE.md keeps one line: "Windows ports follow the order in lesson `windows-port-order`" | ☑ 2026-10-23 |
+| C6 | License key for Windows apps | split | stays: build on `Ambysto.Kit.License`; agents never create or use a real key; Free ships first, the key blocks only Pro; apps test entitlement through their own verifier seam. Lesson `license-key-plan` (decision: who makes the key, where, when, the 2026-10-22 change) | ☑ 2026-10-23 |
+| C7 | Private NuGet feed and DPAPI | lesson | `nuget-feed-dpapi-over-ssh` (gotcha: NU1301 over SSH, restore through `vm-ui.sh`, cache then SSH works; token expiry about 90 days from 2026-10-16) | ☑ 2026-10-23 |
+| C8 | Snapshots | split | stays: before a destructive proof, restore the default snapshot named in `~/vms/DEFAULT_SNAPSHOT`; after restoring an older layer, resync the clock first. Lesson `win11-snapshots` (reference: every layer and what it lacks) | ☑ 2026-10-23 |
+| C9 | Cloud files (AmbyCloud, OneDrive) | split | stays: OneDrive in the VM uses only the owner's test Microsoft account, never the personal one. Lesson `cloud-files-in-vm` (reference + gotcha: AmbyCloud logs fetches by pid; online-only items do not reach the bin) | ☑ 2026-10-23 |
+| C10 | Contribute only as Ambysto (no trailer) | stays | rule | ☑ 2026-10-23 |
+| C11 | GitHub accounts, `gh` and `vercel` wrappers | stays | rule | ☑ 2026-10-23 |
+| C12 | Two identities, never mixed | stays | rule | ☑ 2026-10-23 |
+| C13 | VM state 2026-10-16 (Windows build, SDKs, volumes, long paths, Defender, SCM right, Steady installed) | lesson | `win11-vm-state` (reference; `last_validated` 2026-10-16, so it ages first). The evaluation expiry 2027-01-13 stays in CLAUDE.md as one line: it blocks everything when it passes | ☑ 2026-10-23 |
 
-| G1 | The guide block (lines 1–65: model economy, rating, loop, owner time log, working practice, switching, honesty) | stays | changed only through claudecode-guide PRs; step 4a adds the recall section there; step 5 never touches it | ☐ |
+| G1 | The guide block (lines 1–65: model economy, rating, loop, owner time log, working practice, switching, honesty) | stays | changed only through claudecode-guide PRs; step 4a adds the recall section there; step 5 never touches it | ☑ 2026-10-23 |
 
 ## Risks and how they are caught
 

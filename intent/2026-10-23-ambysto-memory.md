@@ -1,5 +1,5 @@
 ---
-status: approved  # draft → approved → planned → building → verified → shipped (PR #n)
+status: planned   # draft → approved → planned → building → verified → shipped (PR #n)
 ---
 # ambysto-memory: one reviewed memory for every Ambysto session
 
