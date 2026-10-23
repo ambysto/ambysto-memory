@@ -89,13 +89,13 @@ class WireTests(unittest.TestCase):
         self.assertEqual(self.home.read(".grok/AGENTS.md"), first)
         self.assertEqual(len(self.home.backups(".grok/AGENTS.md")), 1)
 
-    def test_old_block_replaced_text_around_kept(self):
-        before, after = "top\n", "\nbottom line\n"
-        self.home.write(".config/opencode/AGENTS.md", before + wire.BEGIN + "\nold text\n" + wire.END + "\n" + after)
+    def test_old_block_at_the_end_replaced_text_before_kept(self):
+        before = "top\n```sh\necho fenced example, closed\n```\n\n"
+        self.home.write(".config/opencode/AGENTS.md", before + wire.BEGIN + "\nold text\n" + wire.END + "\n\n")
         code, out = self.home.run()
         self.assertEqual(code, 0, out)
         self.assertEqual(self.home.read(".config/opencode/AGENTS.md"),
-                         before + wire.BEGIN + "\n" + RECALL + wire.END + "\n" + after)
+                         before + wire.BEGIN + "\n" + RECALL + wire.END + "\n\n")
 
     def test_crlf_file_stays_crlf(self):
         owner = "line one\r\nline two\r\n"
@@ -115,7 +115,7 @@ class WireTests(unittest.TestCase):
                 self.home.write(".codex/AGENTS.md", text)
                 code, out = self.home.run()
                 self.assertEqual(code, 2, out)
-                self.assertIn("REFUSED: ~/.codex/AGENTS.md: broken ambysto-memory markers", out)
+                self.assertIn("REFUSED: ~/.codex/AGENTS.md: ambysto-memory marker text in an unexpected form", out)
                 self.assertEqual(self.home.read(".codex/AGENTS.md"), text)
 
     def test_non_utf8_refused_and_untouched(self):
@@ -216,29 +216,52 @@ class WireTests(unittest.TestCase):
         self.home.run()
         self.assertEqual([f for f in os.listdir(self.home.path(".codex")) if f.startswith(".wire-")], [])
 
-    def test_fenced_marker_example_is_not_the_block(self):
-        owner = "Example:\n```\n" + wire.BEGIN + "\nexample text\n" + wire.END + "\n```\nend\n"
-        self.home.write(".codex/AGENTS.md", owner)
-        code, out = self.home.run()
-        self.assertEqual(code, 0, out)
-        text = self.home.read(".codex/AGENTS.md")
-        self.assertTrue(text.startswith(owner), text)
-        self.assertIn("example text", text)
-        self.assertEqual(self.home.run()[0], 0)  # and a second run finds its own block
+    def test_marker_text_in_any_other_form_is_refused_and_untouched(self):
+        cases = {
+            "unclosed fence": "rules\n```\ncode\n" + wire.BEGIN + "\n",
+            "fenced example": "Example:\n```\n" + wire.BEGIN + "\nexample\n" + wire.END + "\n```\n",
+            "four-backtick fence": "````\n```\n" + wire.BEGIN + "\nx\n" + wire.END + "\n```\n````\n",
+            "indented code": "Example:\n\n    " + wire.BEGIN + "\n    x\n    " + wire.END + "\n",
+            "space padded": "  " + wire.BEGIN + "  \nold\n" + wire.END + "\n",
+            "inline": "see " + wire.BEGIN + " here\n",
+            "block plus example": wire.BEGIN + "\nold\n" + wire.END + "\nsee `" + wire.END + "`\n",
+            "text after the block": "top\n" + wire.BEGIN + "\nold\n" + wire.END + "\nowner text added later\n",
+            "open fence before the block": "```\n" + wire.BEGIN + "\nx\n" + wire.END + "\n",
+        }
+        for label, text in cases.items():
+            with self.subTest(label):
+                self.home.write(".codex/AGENTS.md", text)
+                code, out = self.home.run()
+                self.assertEqual(code, 2, out)
+                self.assertIn("marker text in an unexpected form", out)
+                self.assertEqual(self.home.read(".codex/AGENTS.md"), text)
+                self.assertEqual(self.home.backups(".codex/AGENTS.md"), [])
 
-    def test_space_padded_markers_are_the_block(self):
-        self.home.write(".codex/AGENTS.md", "top\n  " + wire.BEGIN + "  \nold\n " + wire.END + "\nbottom\n")
-        code, out = self.home.run()
-        self.assertEqual(code, 0, out)
-        text = self.home.read(".codex/AGENTS.md")
-        self.assertEqual(text.count(wire.BEGIN), 1, text)
-        self.assertTrue(text.startswith("top\n") and text.endswith("bottom\n"), text)
+    def test_unclosed_fence_without_markers_is_wired_once(self):
+        self.home.write(".codex/AGENTS.md", "rules\n```bash``` blocks are run as shell.\n```\ncode\n")
+        for _ in range(3):
+            self.assertEqual(self.home.run()[0], 0)
+        self.assertEqual(self.home.read(".codex/AGENTS.md").count(wire.BEGIN), 1)
+        self.assertEqual(self.home.run("--check")[0], 0)
 
-    def test_marker_text_inside_a_line_is_refused(self):
-        self.home.write(".codex/AGENTS.md", "see " + wire.BEGIN + " here\n")
-        code, out = self.home.run()
-        self.assertEqual(code, 2, out)
-        self.assertIn("not on a line of its own", out)
+    def test_open_fence_at_the_end_is_refused_before_any_write(self):
+        for text in ("rules\n```\ncode\n", "rules\n```bash``` blocks are run as shell.\n"):
+            with self.subTest(text=text):
+                self.home.write(".codex/AGENTS.md", text)
+                code, out = self.home.run()
+                self.assertEqual(code, 2, out)
+                self.assertIn("a code fence is still open", out)
+                self.assertEqual(self.home.read(".codex/AGENTS.md"), text)
+                self.assertEqual(self.home.backups(".codex/AGENTS.md"), [])
+
+    def test_created_file_follows_the_umask(self):
+        self.home.mkdir(".codex")
+        old = os.umask(0o022)
+        try:
+            self.home.run()
+        finally:
+            os.umask(old)
+        self.assertEqual(os.stat(self.home.path(".codex/AGENTS.md")).st_mode & 0o777, 0o644)
 
     def test_mostly_lf_file_gets_an_lf_block(self):
         self.home.write(".codex/AGENTS.md", "a\nb\nc\r\nd\n")

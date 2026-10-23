@@ -60,44 +60,44 @@ def block(recall, nl):
     return BEGIN + nl + body + END + nl
 
 
-def marker_lines(text):
-    """Offsets (start, end including the line end, marker) of marker lines outside code fences.
-
-    A marker counts only as a whole line (spaces around it allowed); one inside a ``` or ~~~
-    fence is an example, not a marker.
-    """
-    found, fence, pos = [], None, 0
-    for line in text.splitlines(True):
-        bare = line.strip()
-        if fence is None and (bare.startswith("```") or bare.startswith("~~~")):
-            fence = bare[:3]
-        elif fence is not None and bare.startswith(fence):
-            fence = None
-        elif fence is None and bare in (BEGIN, END):
-            found.append((pos, pos + len(line), bare))
-        pos += len(line)
-    return found
+def is_fence(line):
+    return line.lstrip().startswith(("```", "~~~"))
 
 
 def split(text, path):
-    """Return (before, inside, after) around the markers, or None when there are none."""
-    found = marker_lines(text)
-    loose = text.count(BEGIN) + text.count(END)
-    if not found:
-        if loose and "```" not in text and "~~~" not in text:
-            raise Refused("%s: ambysto-memory marker text not on a line of its own; fix by hand" % path)
+    """Return (before, inside, after) around the block, or None when the file has no marker text.
+
+    wire.py always appends its block at the end of the file, so a block is recognised only when:
+    each marker is a line of its own, exactly; there is one begin line before one end line and no
+    other marker text anywhere; only blank lines follow the end line; no code fence line is inside
+    the block; and an even number of fence lines comes before it (no fence is open). A marker in
+    any other form or place could be an example the owner wrote: refused, the file is not touched.
+    """
+    total = text.count(BEGIN) + text.count(END)
+    if total == 0:
         return None
-    kinds = [kind for _, _, kind in found]
-    if kinds != [BEGIN, END]:
-        raise Refused("%s: broken ambysto-memory markers (need exactly one begin line before one end line); "
-                      "fix by hand" % path)
-    return text[:found[0][0]], text[found[0][0]:found[1][1]], text[found[1][1]:]
+    lines = text.splitlines(True)
+    exact = [(i, line.rstrip("\r\n")) for i, line in enumerate(lines) if line.rstrip("\r\n") in (BEGIN, END)]
+    ok = total == len(exact) == 2 and [kind for _, kind in exact] == [BEGIN, END]
+    if ok:
+        first, last = exact[0][0], exact[1][0]
+        ok = (all(not line.strip() for line in lines[last + 1:])
+              and not any(is_fence(line) for line in lines[first:last + 1])
+              and sum(1 for line in lines[:first] if is_fence(line)) % 2 == 0)
+    if not ok:
+        raise Refused("%s: ambysto-memory marker text in an unexpected form or place (the block must be "
+                      "one begin line and one end line, each alone on its line, at the end of the file, "
+                      "outside any code fence); fix by hand" % path)
+    return "".join(lines[:first]), "".join(lines[first:last + 1]), "".join(lines[last + 1:])
 
 
 def wired_text(text, recall, path):
     """The file's text with the current block, everything else byte for byte."""
     nl = newline_of(text) if text else "\n"
     parts = split(text, path)
+    if parts is None and sum(1 for line in text.splitlines() if is_fence(line)) % 2:
+        raise Refused("%s: a code fence is still open at the end of the file; a block appended there would "
+                      "be read as code; close the fence by hand" % path)
     if parts is None:
         sep = "" if not text or text.endswith(nl + nl) else (nl if text.endswith(nl) else nl + nl)
         return text + sep + block(recall, nl)
@@ -154,7 +154,12 @@ def write_atomically(path, data):
             fh.flush()
             os.fsync(fh.fileno())
         if os.path.exists(path):
-            os.chmod(tmp, os.stat(path).st_mode & 0o7777)
+            mode = os.stat(path).st_mode & 0o7777
+        else:
+            umask = os.umask(0)
+            os.umask(umask)
+            mode = 0o666 & ~umask
+        os.chmod(tmp, mode)
         os.replace(tmp, path)
     except BaseException:
         if os.path.exists(tmp):
@@ -183,7 +188,8 @@ def wire_one(name, rel, home, recall, check, stamp, problems):
         backup = backup_path(path, stamp)
         with open(backup, "xb") as fh:
             fh.write(text.encode("utf-8"))
-        note = "backup %s" % backup.replace(home, "~", 1)
+        shown = os.path.relpath(backup, home)
+        note = "backup " + ("~/" + shown if not shown.startswith("..") else backup)
     else:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         note = "created"
