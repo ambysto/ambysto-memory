@@ -78,7 +78,7 @@ its global instruction file. Fallback order (owner, 2026-10-23):
 | Tier | Harness | Global instruction file |
 |---|---|---|
 | 1 | Claude Code | `~/.claude/CLAUDE.md`, through the claudecode-guide global block |
-| 2 | Codex | `~/.codex/AGENTS.md` |
+| 2 | Codex | `$CODEX_HOME/AGENTS.md` (default `~/.codex`); Orca runs Codex with a home per account, `~/.config/orca/codex-accounts/<id>/home/AGENTS.md`, and `~/.config/orca/codex-runtime-home/home/AGENTS.md` |
 | 2 | Grok Build | `~/.grok/AGENTS.md` |
 | 2 | Muse Code | reads `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` |
 | 2 | Oh My Pi | to confirm when installed |

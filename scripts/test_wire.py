@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -35,8 +36,9 @@ class Home:
             return fh.read().decode("utf-8")
 
     def run(self, *extra):
+        env = {k: v for k, v in os.environ.items() if k != "CODEX_HOME"}
         out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.root] + list(extra),
-                             capture_output=True, text=True)
+                             capture_output=True, text=True, env=env)
         return out.returncode, out.stdout + out.stderr
 
     def backups(self, rel):
@@ -52,6 +54,11 @@ class WireTests(unittest.TestCase):
     def setUp(self):
         self.home = Home()
         self.addCleanup(shutil.rmtree, self.home.root, True)
+        # Never let a test (or a mutant of wire.py) reach the developer's real Codex home.
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        os.environ.pop("CODEX_HOME", None)
 
     def test_creates_missing_file_for_an_installed_harness(self):
         self.home.mkdir(".codex")
@@ -254,6 +261,92 @@ class WireTests(unittest.TestCase):
                 self.assertIn("a code fence looks open", out)
                 self.assertEqual(self.home.read(".codex/AGENTS.md"), text)
                 self.assertEqual(self.home.backups(".codex/AGENTS.md"), [])
+
+    def test_codex_homes_from_codex_home_and_orca_accounts(self):
+        self.home.mkdir(".codex")
+        self.home.mkdir(".config/orca/codex-accounts/acct1/home")
+        self.home.mkdir(".config/orca/codex-accounts/acct2/home")
+        self.home.mkdir("custom-codex")
+        env = dict(os.environ, CODEX_HOME=self.home.path("custom-codex"))
+        out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                             capture_output=True, text=True, env=env)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        for rel in (".codex", "custom-codex", ".config/orca/codex-accounts/acct1/home",
+                    ".config/orca/codex-accounts/acct2/home"):
+            with self.subTest(rel=rel):
+                self.assertIn(wire.BEGIN, self.home.read(rel + "/AGENTS.md"))
+
+    def test_codex_home_equal_to_an_orca_home_is_written_once(self):
+        self.home.mkdir(".config/orca/codex-accounts/acct1/home")
+        env = dict(os.environ, CODEX_HOME=self.home.path(".config/orca/codex-accounts/acct1/home"))
+        out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                             capture_output=True, text=True, env=env)
+        self.assertEqual(out.stdout.count("acct1/home/AGENTS.md"), 1, out.stdout)
+
+    def run_env(self, **env):
+        full = {k: v for k, v in os.environ.items() if k != "CODEX_HOME"}
+        full.update(env)
+        out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                             capture_output=True, text=True, env=full)
+        return out.returncode, out.stdout + out.stderr
+
+    def test_codex_home_symlinked_out_of_home_is_not_written(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        os.symlink(outside, self.home.path("esc"))
+        code, out = self.run_env(CODEX_HOME=self.home.path("esc"))
+        self.assertIn("NOTE: Codex (CODEX_HOME):", out)
+        self.assertEqual(os.listdir(outside), [])
+
+    def test_orca_account_symlinked_out_of_home_is_not_written(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        os.makedirs(os.path.join(outside, "acct", "home"))
+        self.home.mkdir(".config/orca/codex-accounts")
+        os.symlink(os.path.join(outside, "acct"), self.home.path(".config/orca/codex-accounts/lnkout"))
+        code, out = self.run_env()
+        self.assertIn("resolves outside the home; not wired", out)
+        self.assertEqual(os.listdir(os.path.join(outside, "acct", "home")), [])
+
+    def test_harness_file_symlinked_out_of_home_is_refused(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        with open(os.path.join(outside, "AGENTS.md"), "w") as fh:
+            fh.write("theirs\n")
+        self.home.mkdir(".grok")
+        os.symlink(os.path.join(outside, "AGENTS.md"), self.home.path(".grok/AGENTS.md"))
+        code, out = self.run_env()
+        self.assertEqual(code, 2, out)
+        self.assertIn("resolves outside the home; not touched", out)
+        with open(os.path.join(outside, "AGENTS.md")) as fh:
+            self.assertEqual(fh.read(), "theirs\n")
+
+    def test_unreadable_orca_folder_is_a_note_not_a_crash(self):
+        self.home.mkdir(".config/orca/codex-accounts/acct1/home")
+        os.chmod(self.home.path(".config/orca/codex-accounts"), 0)
+        self.addCleanup(os.chmod, self.home.path(".config/orca/codex-accounts"), 0o755)
+        code, out = self.run_env()
+        self.assertIn("NOTE: Codex (Orca accounts):", out)
+        self.assertNotIn("Traceback", out)
+
+    def test_orca_runtime_home_is_wired(self):
+        self.home.mkdir(".config/orca/codex-runtime-home/home")
+        code, out = self.run_env()
+        self.assertEqual(code, 0, out)
+        self.assertIn(wire.BEGIN, self.home.read(".config/orca/codex-runtime-home/home/AGENTS.md"))
+
+    def test_codex_home_not_a_folder_is_a_note(self):
+        self.home.write("afile", "x")
+        code, out = self.run_env(CODEX_HOME=self.home.path("afile"))
+        self.assertIn("is not a folder; not wired", out)
+
+    def test_codex_home_outside_home_is_ignored(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        env = dict(os.environ, CODEX_HOME=outside)
+        subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                       capture_output=True, text=True, env=env)
+        self.assertEqual(os.listdir(outside), [])
 
     def test_created_file_follows_the_umask(self):
         self.home.mkdir(".codex")
