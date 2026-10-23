@@ -26,7 +26,7 @@ Cost of a bug: a wrong or stale lesson is followed by every later session, silen
 - Nothing secret or identifying: no keys, tokens, passwords, hostnames, workspace slugs, project or account ids. Say where the value lives instead ("the Plane base URL in `~/.claude.json`, `plane` server env").
 - Every lesson names its evidence (date, repo, ticket or PR). No evidence, no lesson.
 - Git: English only; the `ambysto` account (`gh api user --jq .login` before the first PR of a session; if it is not `ambysto`, stop and ask; never `gh auth switch`); repo-local author `Ambysto`; branches `aps-NN-slug`, never a push to `main` (the skeleton commit was the only one); commits "Summary (APS-NN)" with no Co-Authored-By trailer, PR bodies with no "Generated with" line; do not merge without being asked.
-- Issue tracker: Plane, project APS, written in English. Each ticket gets a GitHub issue titled `[APS-NN] …`; the PR body starts with "Closes #<issue>. Plane: APS-NN." Never put the Plane host or ids on GitHub.
+- Issue tracker: Plane, project APS, written in English. Each ticket gets a GitHub issue titled `[APS-NN] …`; a phase PR body starts with "Part of #<issue>. Plane: APS-NN.", and only the last PR of a ticket says "Closes #<issue>" Never put the Plane host or ids on GitHub.
 
 ## Session state
 - Work in progress lives in `HANDOFF.md` (gitignored). If it exists at session start, read it before anything else. Update it with `/handoff` before `/clear`; delete it once the goal is finished and recorded.
