@@ -46,6 +46,8 @@ ALLOWED_DOMAINS = (
     "example.net",
 )
 ALLOWED_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "10.0.2.2")  # 10.0.2.2: QEMU user-mode NAT host
+# Product names that look like hosts under .NET; matched exactly, case-sensitively.
+DOTNET_NAMES = ("ASP.NET", "ADO.NET", "VB.NET", "ML.NET", "Stryker.NET")
 BARE_HOST_TLDS = ("com", "net", "org", "io", "dev", "ai", "co", "me", "cloud", "xyz", "vn")
 
 SECRET_PATTERNS = (
@@ -132,6 +134,8 @@ def secret_findings(text):
             if all(int(part) <= 255 for part in ip.split(".")) and ip not in ALLOWED_HOSTS:
                 yield n, "IPv4 address: %s" % ip
         for m in BARE_HOST.finditer(line):
+            if m.group(1) in DOTNET_NAMES:
+                continue
             if not host_allowed(m.group(1)):
                 yield n, "host not on the allow list: %s" % m.group(1)
 
