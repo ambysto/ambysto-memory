@@ -40,6 +40,7 @@ ALLOWED_DOMAINS = (
     "anthropic.com",
     "claude.com",
     "ambysto.com",
+    "apache.org",  # the Apache-2.0 LICENSE text
     "digicert.com",
     "example.com",
     "example.org",

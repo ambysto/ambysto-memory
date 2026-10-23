@@ -54,3 +54,7 @@ The hook stops a commit whose staged files fail the check.
 python3 -m unittest scripts/test_check.py scripts/test_wire.py
 python3 scripts/check.py
 ```
+
+## Licence
+
+Apache-2.0, see [LICENSE](LICENSE) and [NOTICE](NOTICE).
