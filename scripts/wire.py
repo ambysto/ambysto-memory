@@ -27,7 +27,6 @@ RECALL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "recall.md")
 # (harness, folder that shows it is installed, global instruction file), all relative to home.
 # Paths confirmed 2026-10-23 from each harness's binary, docs or source.
 HARNESSES = (
-    ("Codex", ".codex", ".codex/AGENTS.md"),
     ("Grok Build", ".grok", ".grok/AGENTS.md"),
     ("OpenCode", ".config/opencode", ".config/opencode/AGENTS.md"),
     ("Antigravity CLI", ".gemini", ".gemini/GEMINI.md"),
@@ -37,6 +36,58 @@ HARNESSES = (
 # machine and their global file is to confirm when they are (AGENTS.md, "Harnesses").
 DOCUMENTED_ONLY = ("Muse Code (through Codex and Claude Code)", "Oh My Pi", "Cursor CLI", "Codewhale", "DeepSeek Harness")
 CLAUDE_FILE = ".claude/CLAUDE.md"
+# Codex reads `$CODEX_HOME/AGENTS.md` (default `~/.codex`). Orca runs Codex with a home per account
+# under `~/.config/orca/codex-accounts/<id>/home`, and its own runtime home, so those get the block too.
+ORCA_CODEX_HOMES = ".config/orca/codex-accounts"
+ORCA_RUNTIME_HOME = ".config/orca/codex-runtime-home/home"
+
+
+def within(path, home):
+    """True when path, with every symlink resolved, is home or inside it."""
+    real, root = os.path.realpath(path), os.path.realpath(home)
+    return real == root or real.startswith(root + os.sep)
+
+
+def codex_homes(home, env, notes):
+    """Codex homes under `home`, as (label, folder, file) relative to it, without duplicates.
+
+    Anything that resolves outside `home` is left out with a note, never written.
+    """
+    found = [(".codex", "Codex")]
+    codex_home = env.get("CODEX_HOME")
+    if codex_home:
+        full = os.path.abspath(os.path.expanduser(codex_home))
+        if not os.path.isdir(full):
+            notes.append("Codex (CODEX_HOME): %s is not a folder; not wired" % codex_home)
+        elif not within(full, home):
+            notes.append("Codex (CODEX_HOME): %s is outside the home; not wired" % codex_home)
+        else:
+            found.append((os.path.relpath(full, home), "Codex (CODEX_HOME)"))
+    found.append((ORCA_RUNTIME_HOME, "Codex (Orca runtime)"))
+    orca = os.path.join(home, ORCA_CODEX_HOMES)
+    if os.path.isdir(orca):
+        try:
+            accounts = sorted(os.listdir(orca))
+        except OSError as exc:
+            notes.append("Codex (Orca accounts): ~/%s unreadable (%s); not wired" % (ORCA_CODEX_HOMES, exc.strerror))
+            accounts = []
+        for account in accounts:
+            if os.path.isdir(os.path.join(orca, account, "home")):
+                found.append((os.path.join(ORCA_CODEX_HOMES, account, "home"), "Codex (Orca account)"))
+    out, seen = [], set()
+    for rel, label in found:
+        folder = os.path.join(home, rel)
+        if os.path.isdir(folder) and not within(folder, home):
+            notes.append("%s: ~/%s resolves outside the home; not wired" % (label, rel))
+            continue
+        key = os.path.realpath(folder)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((label, rel, os.path.normpath(os.path.join(rel, "AGENTS.md"))))
+    return out
+
+
 CLAUDE_SECTION = "## Shared memory"
 
 
@@ -184,8 +235,10 @@ def write_atomically(path, data):
 def wire_one(name, rel, home, recall, check, stamp, problems):
     """Wire or check one harness. Raises Refused or OSError on doubt; never writes outside its markers."""
     link = os.path.join(home, rel)
-    # Write through a symlink to its target, so the link itself stays a link.
+    # Write through a symlink to its target, so the link itself stays a link; never outside home.
     path = os.path.realpath(link) if os.path.islink(link) else link
+    if not within(os.path.dirname(link), home) or (os.path.lexists(link) and not within(link, home)):
+        raise Refused("~/%s: resolves outside the home; not touched" % rel)
     if os.path.islink(link) and not os.path.exists(path):
         raise Refused("~/%s: a symlink to a missing file" % rel)
     text = read_bytes(path, "~/" + rel) if os.path.exists(path) else ""
@@ -242,7 +295,8 @@ def main(argv=None):
     else:
         print("Claude Code: current (claudecode-guide block)")
 
-    for name, marker_dir, rel in HARNESSES:
+    notes = []
+    for name, marker_dir, rel in codex_homes(home, os.environ, notes) + list(HARNESSES):
         if not os.path.isdir(os.path.join(home, marker_dir)):
             print("%s: not installed (no ~/%s)" % (name, marker_dir))
             continue
@@ -253,6 +307,8 @@ def main(argv=None):
         except OSError as exc:
             refused.append("%s: ~/%s: %s; not touched" % (name, rel, exc.strerror or exc))
 
+    for line in notes:
+        print("NOTE: " + line)
     print("Documented only (AGENTS.md, \"Harnesses\"): " + ", ".join(DOCUMENTED_ONLY))
     for line in refused:
         print("REFUSED: " + line)
