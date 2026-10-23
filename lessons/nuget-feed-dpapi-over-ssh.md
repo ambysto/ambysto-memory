@@ -8,7 +8,7 @@ last_validated: 2026-10-18
 status: active
 ---
 
-The `ambysto` source (GitHub Packages) is read with a `read:packages` token encrypted with DPAPI in ambytest's user NuGet.Config. DPAPI cannot decrypt over SSH (key auth gives the session no password).
+The `ambysto` source (GitHub Packages, `https://nuget.pkg.github.com/ambysto/index.json`) is read with a `read:packages` token encrypted with DPAPI in ambytest's user NuGet.Config (the token file was deleted). DPAPI cannot decrypt over SSH (key auth gives the session no password).
 Restore anything new from that feed through `vm-ui.sh` (the console session); once a version is in ambytest's global packages folder, SSH builds of it restore from the cache.
 Or pull the package on the host with `vm-nuget-pull.sh` into the VM's local feed `ambysto-local`.
 The token was added 2026-10-16 and expires about 90 days later, so expect NU1301 everywhere around mid-January 2027.

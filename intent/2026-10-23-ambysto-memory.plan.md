@@ -153,7 +153,7 @@ Fate: **lesson** (moved into `lessons/<slug>`), **stays** (left where it is), **
 (already recorded elsewhere, named). Owner tick: ☐ until the owner agrees in the plan
 review; a changed row is rewritten, not ticked.
 
-### Auto-memory (listing 2026-10-23: 13 files at plan acceptance, 14 at 10:13, 16 when auto-memory was turned off at 10:50)
+### Auto-memory (listing 2026-10-23: 13 files at plan acceptance, 14 at 10:13, 16 when auto-memory was turned off at 10:50, 20 before step 5)
 
 | # | Source (`~/.claude/projects/…/memory/`) | Fate | Lesson / where it already is | Owner |
 |---|---|---|---|---|
@@ -173,6 +173,10 @@ review; a changed row is rewritten, not ticked.
 | A14 | ambysto (root) `address-owner-as-sir.md` (written 2026-10-23 10:13 by another session, after plan acceptance) | lesson | `address-owner-as-sir` (convention, all): the owner is addressed as "Sir" ("Dạ Sir, …" in Vietnamese), naturally, not in every sentence | ☑ 2026-10-23 |
 | A15 | space `flag-owner-mistakes.md` (written 10:41 by a running session) | lesson | `flag-owner-mistakes` (correction, all) | ☑ 2026-10-23 |
 | A16 | space `close-duplicate-tickets.md` (written 10:42 by a running session) | lesson | `close-duplicate-tickets` (convention, all); the Cancelled state id is not copied: looked up by name | ☑ 2026-10-23 |
+| A17 | `ambysto-1prompt` `autonomous-run-aps31.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A4, already migrated | ☑ 2026-10-23 |
+| A18 | `ambysto-1prompt` `flag-owner-mistakes.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A15, already migrated | ☑ 2026-10-23 |
+| A19 | `ambysto-1prompt` `loop-assessment-framing.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A6, already migrated | ☑ 2026-10-23 |
+| A20 | `ambysto-1prompt` `sure-over-fast.md` (copied 11:07, after the switch-off, into a new repo's folder) | dropped | byte-identical copy of A7, already migrated | ☑ 2026-10-23 |
 
 ### `~/.claude/CLAUDE.md`, machine section (after the guide block, 12 KB)
 
@@ -192,7 +196,7 @@ review; a changed row is rewritten, not ticked.
 | C12 | Two identities, never mixed | stays | rule | ☑ 2026-10-23 |
 | C13 | VM state 2026-10-16 (Windows build, SDKs, volumes, long paths, Defender, SCM right, Steady installed) | lesson | `win11-vm-state` (reference; `last_validated` 2026-10-16, so it ages first). The evaluation expiry 2027-01-13 stays in CLAUDE.md as one line: it blocks everything when it passes | ☑ 2026-10-23 |
 
-| G1 | The guide block (lines 1–65: model economy, rating, loop, owner time log, working practice, switching, honesty) | stays | changed only through claudecode-guide PRs; step 4a adds the recall section there; step 5 never touches it | ☑ 2026-10-23 |
+| G1 | The guide block (lines 1–72 after step 4a: model economy, rating, loop, owner time log, working practice, switching, honesty) | stays | changed only through claudecode-guide PRs; step 4a adds the recall section there; step 5 never touches it | ☑ 2026-10-23 |
 
 ## Risks and how they are caught
 
