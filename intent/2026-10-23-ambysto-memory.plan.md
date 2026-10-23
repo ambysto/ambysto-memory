@@ -33,7 +33,10 @@ except where noted.
     and at least 4.4 bits of entropy per character, all bounded by lookarounds rather than
     `\b` (a `_` prefix must not hide a key), UUIDs, e-mail addresses, `/home/<name>/` and
     `/Users/<name>/` paths (not after a drive letter), Claude Code's encoded
-    `-home-<name>-…` folder names, non-loopback IPv4 addresses, and hosts (case-insensitive).
+    `-home-<name>-…` folder names, IPv4 addresses (not loopback, `0.0.0.0` or QEMU's
+    `10.0.2.2`, and not a version number), and hosts (case-insensitive). Accepted limit:
+    an underscore-joined identifier longer than about 60 characters (a long xUnit test
+    name) can measure over 4.4 bits and be refused; shorten it or quote the class name.
     Hosts are found three ways, and a host passes only when it equals an allowed domain or
     ends in `.` + one (so `nuget.pkg.github.com` passes through `github.com`):
     1. every URL with a scheme (any scheme), or starting `//`, by its host;

@@ -45,7 +45,7 @@ ALLOWED_DOMAINS = (
     "example.org",
     "example.net",
 )
-ALLOWED_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0")
+ALLOWED_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "10.0.2.2")  # 10.0.2.2: QEMU user-mode NAT host
 BARE_HOST_TLDS = ("com", "net", "org", "io", "dev", "ai", "co", "me", "cloud", "xyz", "vn")
 
 SECRET_PATTERNS = (
@@ -79,7 +79,10 @@ B64_MIN_ENTROPY = 4.4
 B64_RUN = re.compile(r"(?<![A-Za-z0-9+/_=-])[A-Za-z0-9+/_-]{32,}={0,2}")
 URL = re.compile(r"\b[a-zA-Z][a-zA-Z0-9+.-]*://([^/\s'\"`<>()\[\]]+)")
 SCHEMELESS_URL = re.compile(r"(?<![:\w/])//([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)")
-IPV4 = re.compile(r"(?<![\d.])((?:\d{1,3}\.){3}\d{1,3})(?![\d.])")
+# A version (AmbystoLean_1.0.0.0_x64, Version="1.0.0.0", "AssemblyVersion 2.1.3.0") is not an address;
+# a trailing full stop still ends one.
+IPV4 = re.compile(r"(?<![\w.=\"'-])((?:\d{1,3}\.){3}\d{1,3})(?!\.?\d)(?![\w\"'-])")
+VERSION_WORD = re.compile(r"(?i)version\W{0,3}$")
 BARE_HOST = re.compile(
     r"(?i)(?<![\w@/.-])((?:[A-Za-z0-9-]+\.)+(?:" + "|".join(BARE_HOST_TLDS) + r"))(?![\w-])"
 )
@@ -124,6 +127,8 @@ def secret_findings(text):
                 yield n, "URL host not on the allow list: %s" % m.group(1)
         for m in IPV4.finditer(line):
             ip = m.group(1)
+            if VERSION_WORD.search(line[:m.start()]):
+                continue
             if all(int(part) <= 255 for part in ip.split(".")) and ip not in ALLOWED_HOSTS:
                 yield n, "IPv4 address: %s" % ip
         for m in BARE_HOST.finditer(line):
