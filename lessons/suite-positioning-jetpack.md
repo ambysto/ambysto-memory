@@ -9,7 +9,7 @@ status: active
 ---
 
 Owner decision 2026-10-20: the suite is "the jet-pack for every vibeworker", on Mac and Windows; all seven apps are shown as Mac and Windows, DevBox first on the suite page.
-The Vercel projects (team steady-wealth) are Git-connected: project `ambysto` serves ambysto-kit `site/`, so a merge to main deploys production and each PR gets a preview.
-Deferred until the remaining apps are finished: Mac-only feature sections on the Optimer and Lean pages; Windows claims for Steady, Gate and Tune (no Windows spec yet); repositioning the Power, landing and Steady site projects.
+The Vercel projects (the Ambysto team) are Git-connected: project `ambysto` serves ambysto-kit `site/`, so a merge to main deploys production and each PR gets a preview.
+Deferred until the remaining apps are finished: Mac-only feature sections on the Optimer and Lean pages (Dock badges, Finder, Activity Monitor, Time Machine); Windows claims for Steady, Gate and Tune (no Windows spec yet) and Mac-only screenshots; repositioning the Power, landing and Steady site projects.
 Why: the owner wants the landings finished together once the apps exist, not Windows features invented now.
 Do not raise the deferred items as open work before an app (or its Windows port) lands.

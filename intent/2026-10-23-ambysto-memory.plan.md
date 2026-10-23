@@ -300,3 +300,12 @@ issues after the PASS, all fixed:
   were written at 10:41 and 10:42 by running sessions, before the switch. Sessions
   started before 10:50 may still write until they restart; the listing is taken again
   before step 5.
+- **Step 2 review (hard-reviewer: Fable 5.1, FAIL, 2026-10-23, after Sir had merged PR #5).**
+  Fixed in a follow-up PR: (1) MAJOR `windows-port-order` lost each app's reasons and Kit
+  dependencies (Kit Process probes, DevBox as first consumer, Optimer's recycle path,
+  Power's step [0] questions, Tune's Kit pieces); restored. (2) `win11-snapshots` said every
+  non-default layer needs the clock resync; only layers older than `…-2026-10-18` do. (3) an
+  inference in `one-vm-clone-per-worktree` removed. (4) `suite-positioning-jetpack` regained
+  the deferred details and lost the Vercel team slug. (5) details restored in
+  `win11-vm-state`, `license-key-plan`, `measure-before-offering-limits`. (6) APS-33 named.
+  (7) `use-vnc-not-rdp` validated date set to its evidence.

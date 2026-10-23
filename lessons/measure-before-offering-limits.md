@@ -10,5 +10,5 @@ status: active
 
 Probe the known worst inputs through the real entry point, at small and full size, timing parse, query and post-processing separately.
 Offer only the options the numbers support, with the numbers in the question.
-Why: twice an option ("deterministic counts") was offered and picked, then measurements showed callback counts do not track time; each wrong option cost the owner a decision and a round.
+Why: twice an option ("deterministic counts") was offered and picked, then measurements showed callback counts do not track time: cost per callback grows with file size, and in one case query time, not parse time, dominated. Each wrong option cost the owner a decision and a round.
 Confirm: every option in the question cites a measured case.

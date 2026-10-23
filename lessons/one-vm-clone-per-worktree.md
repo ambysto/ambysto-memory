@@ -10,4 +10,4 @@ status: active
 
 Run each agent that uses `vm-sync.sh` or `vm-gates.sh` from its own host worktree.
 Why: the VM clone under `C:\Users\ambytest\src\` is named after the worktree folder, so two agents syncing one worktree overwrite each other's clone.
-`vm-gates.sh` also refuses when HEAD moved after launch; treat that refusal as this collision.
+`vm-gates.sh` also refuses when HEAD moved after launch (for any reason), which stops a run on a clone that changed under it.
