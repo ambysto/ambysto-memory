@@ -5,7 +5,7 @@ Holds the lessons, decisions and references that every Ambysto session needs, wh
 Cost of a bug: a wrong or stale lesson is followed by every later session, silently; a lesson moved out of `CLAUDE.md` and lost is guidance no session gets any more; a secret written here reaches GitHub.
 
 ## Verify
-- `python3 scripts/check.py`: every lesson's frontmatter and shape, `INDEX.md` equal to the lessons, no secret-like text, stale lessons listed (from the plan; not written yet). The same check runs as the git pre-commit hook of each clone.
+- `python3 scripts/check.py`: every lesson's frontmatter and shape, `INDEX.md` equal to the lessons, no secret-like text, stale lessons listed (from the plan; not written yet). The same check runs as the git pre-commit hook (`git config core.hooksPath hooks` once per clone).
 - Owner-only or other-machine checks: cloning on the Mac and a Mac session reading the memory ("not run: Mac, owner step").
 
 ## HARD: the main session does it directly, then hard-reviewer

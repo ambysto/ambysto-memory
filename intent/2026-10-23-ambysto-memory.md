@@ -45,16 +45,21 @@ the project repos, that every Ambysto session reads:
 - `scripts/check.py` (standard library only) keeps the shape, keeps `INDEX.md` in step with
   the lessons, refuses secret or identifying text (defined below), and lists lessons not
   validated for 90 days so they come back to the owner for review. A plain git pre-commit
-  hook in each clone runs it, so a refused value never leaves the machine.
+  hook runs it, installed in each clone with one command named in the README
+  (`git config core.hooksPath hooks`). Where it is installed, a refused value is not
+  committed; `--no-verify` and edits on the GitHub web page get past it, and the owner's
+  PR review is the last check.
 - **What counts as secret or identifying** (refused): keys, tokens, passwords and
   credential-shaped strings; UUIDs and other account, workspace or project ids; e-mail
   addresses; hostnames and URLs of real services other than public, well-known ones
-  (github.com, learn.microsoft.com and the like). **Allowed:** local paths, SSH aliases from
+  (github.com, learn.microsoft.com and the like). **Allowed:** local paths written from `~`
+  (not `/home/<account>`), SSH aliases from
   `~/.ssh/config` (`win11`, `win11-test`), the test bed's own names (`win11-dev`, `Ramune`,
   `ambytest`, `\\localhost\ambynet`), ticket ids (APS-36) and repo names.
 - **Recall:** one line in the claudecode-guide global block tells every session, before
   non-trivial work and when a command fails in a way that may have a known fix, to update
-  the clone (`git pull --ff-only`) and read `INDEX.md`, and to name the lesson it used when
+  the clone (`git pull --ff-only`, only when it is on `main`; on another branch or offline,
+  read it as it is and say so) and read `INDEX.md`, and to name the lesson it used when
   one changes what it does. No hook, no tool.
 - **Review:** an agent drafts a lesson in a PR; the owner merging the PR is the approval.
 - **Migration:** every auto-memory item for the Ambysto repos (the listing
@@ -63,7 +68,8 @@ the project repos, that every Ambysto session reads:
   in `~/.claude/CLAUDE.md`, each moved into a lesson, kept where they are, or dropped, with
   the owner approving the list item by item. Rules that every session must follow stay in
   `CLAUDE.md`; facts and gotchas a task looks up move out. The old memory folders are left
-  in place, not deleted.
+  in place, not deleted. The Mac's own auto-memory folders for Ambysto repos are listed by
+  the owner before it is turned off there, and migrated the same way (owner step).
 - **Auto-memory off** with `autoMemoryEnabled: false` in `~/.claude/settings.json`, on this
   machine and on the Mac (owner step there).
 
@@ -77,8 +83,9 @@ the project repos, that every Ambysto session reads:
 4. **Loaded by one line in `CLAUDE.md`**, not by a hook and not only on demand.
 5. **Replace the per-folder auto-memory entirely.**
 6. **Windows VM facts move out of `CLAUDE.md`** (the Recycle Bin table, the snapshot layers,
-   the VM state) into `reference` and `gotcha` lessons. `CLAUDE.md` keeps the rules: run in
-   the VM as ambytest, never on the host; the lock rule; never read the guest password.
+   the VM state) into `reference` and `gotcha` lessons. `CLAUDE.md` keeps the rules, for
+   example: run in the VM as ambytest, never on the host; the lock rule; never read the
+   guest password. The migration table decides each line.
 7. **The recall line lives in the claudecode-guide global block** (a claudecode-guide PR
    under APS-36), so a reinstall keeps it and the Mac gets it.
 8. **Auto-memory is turned off** (`autoMemoryEnabled: false`), not redirected with
@@ -101,7 +108,7 @@ cross-project scope only when a lesson says so (memorix).
 | 5 | Auto-memory no longer writes per folder | a fresh session on this machine, asked to remember a fact, writes nothing under `~/.claude/projects/*/memory` |
 | 6 | A session in a repo that never had a lesson finds and uses it | a fresh session in a worktree (e.g. `ambysto-space-asp24`) asked to list the latest APS tickets reaches Plane with no 403 retry and names the lesson it used (a read, no tracker write) |
 | 7 | Stale lessons come back | `check.py` lists a lesson whose `last_validated` is set back 91 days (mutation) |
-| 8 | The Mac reads the same memory and its auto-memory is off | not run here: Mac, owner step (clone, `autoMemoryEnabled: false`, one session recalls a lesson) |
+| 8 | The Mac reads the same memory and its auto-memory is off | not run here: Mac, owner step (list and migrate its auto-memory, clone, install the hook, `autoMemoryEnabled: false`, one session recalls a lesson) |
 
 Accepted, not measured in v1: whether sessions keep recalling after the first proof. A
 known lesson relearned is logged as an owner `incident` in the time log, which is where it
@@ -145,3 +152,15 @@ revision.
 4. MINOR: criterion 6 wrote to the tracker. Fixed: it reads.
 5. NIT: "five kinds" against seven. Fixed.
 6. NIT: CLAUDE.md said "repo-local author"; it comes from `includeIf`. Fixed.
+
+**Round 2 (hard-reviewer: Fable 5.1, PASS, 2026-10-23).** Round-1 fixes verified (the
+listing gives 13 files; `win11` and `win11-test` are real SSH aliases). Five issues found
+after the PASS, all fixed:
+1. MINOR: git hooks are not cloned, and `--no-verify` or a web edit gets past them. Fixed:
+   the install command is named and the claim narrowed.
+2. MINOR: the recall pull would follow a lesson draft branch, and fails offline. Fixed:
+   pull only on `main`.
+3. MINOR: the Mac's own auto-memory would be lost when turned off. Fixed: listed and
+   migrated first (owner step).
+4. NIT: absolute paths carry the account name. Fixed: paths from `~`.
+5. NIT: decision 6 named only some of the rules that stay. Fixed: "for example".
