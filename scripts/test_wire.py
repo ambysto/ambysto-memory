@@ -251,7 +251,7 @@ class WireTests(unittest.TestCase):
                 self.home.write(".codex/AGENTS.md", text)
                 code, out = self.home.run()
                 self.assertEqual(code, 2, out)
-                self.assertIn("a code fence is still open", out)
+                self.assertIn("a code fence looks open", out)
                 self.assertEqual(self.home.read(".codex/AGENTS.md"), text)
                 self.assertEqual(self.home.backups(".codex/AGENTS.md"), [])
 
