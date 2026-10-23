@@ -27,7 +27,6 @@ RECALL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "recall.md")
 # (harness, folder that shows it is installed, global instruction file), all relative to home.
 # Paths confirmed 2026-10-23 from each harness's binary, docs or source.
 HARNESSES = (
-    ("Codex", ".codex", ".codex/AGENTS.md"),
     ("Grok Build", ".grok", ".grok/AGENTS.md"),
     ("OpenCode", ".config/opencode", ".config/opencode/AGENTS.md"),
     ("Antigravity CLI", ".gemini", ".gemini/GEMINI.md"),
@@ -37,6 +36,33 @@ HARNESSES = (
 # machine and their global file is to confirm when they are (AGENTS.md, "Harnesses").
 DOCUMENTED_ONLY = ("Muse Code (through Codex and Claude Code)", "Oh My Pi", "Cursor CLI", "Codewhale", "DeepSeek Harness")
 CLAUDE_FILE = ".claude/CLAUDE.md"
+# Codex reads `$CODEX_HOME/AGENTS.md` (default `~/.codex`). Orca runs Codex with a home per account
+# under `~/.config/orca/codex-accounts/<id>/home`, so each of those gets the block too.
+ORCA_CODEX_HOMES = ".config/orca/codex-accounts"
+
+
+def codex_homes(home, env):
+    """Codex homes under `home`, as (name, folder) relative to it, without duplicates."""
+    found = [".codex"]
+    codex_home = env.get("CODEX_HOME")
+    if codex_home:
+        full = os.path.abspath(os.path.expanduser(codex_home))
+        if full == home or full.startswith(home + os.sep):
+            found.append(os.path.relpath(full, home))
+    orca = os.path.join(home, ORCA_CODEX_HOMES)
+    if os.path.isdir(orca):
+        for account in sorted(os.listdir(orca)):
+            if os.path.isdir(os.path.join(orca, account, "home")):
+                found.append(os.path.join(ORCA_CODEX_HOMES, account, "home"))
+    out, seen = [], set()
+    for rel in found:
+        key = os.path.realpath(os.path.join(home, rel))
+        if key in seen:
+            continue
+        seen.add(key)
+        label = "Codex" if rel == ".codex" else "Codex (%s)" % ("Orca account" if rel.startswith(ORCA_CODEX_HOMES) else "CODEX_HOME")
+        out.append((label, rel, os.path.join(rel, "AGENTS.md")))
+    return out
 CLAUDE_SECTION = "## Shared memory"
 
 
@@ -242,7 +268,7 @@ def main(argv=None):
     else:
         print("Claude Code: current (claudecode-guide block)")
 
-    for name, marker_dir, rel in HARNESSES:
+    for name, marker_dir, rel in codex_homes(home, os.environ) + list(HARNESSES):
         if not os.path.isdir(os.path.join(home, marker_dir)):
             print("%s: not installed (no ~/%s)" % (name, marker_dir))
             continue

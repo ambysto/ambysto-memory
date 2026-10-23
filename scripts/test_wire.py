@@ -35,8 +35,9 @@ class Home:
             return fh.read().decode("utf-8")
 
     def run(self, *extra):
+        env = {k: v for k, v in os.environ.items() if k != "CODEX_HOME"}
         out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.root] + list(extra),
-                             capture_output=True, text=True)
+                             capture_output=True, text=True, env=env)
         return out.returncode, out.stdout + out.stderr
 
     def backups(self, rel):
@@ -254,6 +255,35 @@ class WireTests(unittest.TestCase):
                 self.assertIn("a code fence looks open", out)
                 self.assertEqual(self.home.read(".codex/AGENTS.md"), text)
                 self.assertEqual(self.home.backups(".codex/AGENTS.md"), [])
+
+    def test_codex_homes_from_codex_home_and_orca_accounts(self):
+        self.home.mkdir(".codex")
+        self.home.mkdir(".config/orca/codex-accounts/acct1/home")
+        self.home.mkdir(".config/orca/codex-accounts/acct2/home")
+        self.home.mkdir("custom-codex")
+        env = dict(os.environ, CODEX_HOME=self.home.path("custom-codex"))
+        out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                             capture_output=True, text=True, env=env)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        for rel in (".codex", "custom-codex", ".config/orca/codex-accounts/acct1/home",
+                    ".config/orca/codex-accounts/acct2/home"):
+            with self.subTest(rel=rel):
+                self.assertIn(wire.BEGIN, self.home.read(rel + "/AGENTS.md"))
+
+    def test_codex_home_equal_to_an_orca_home_is_written_once(self):
+        self.home.mkdir(".config/orca/codex-accounts/acct1/home")
+        env = dict(os.environ, CODEX_HOME=self.home.path(".config/orca/codex-accounts/acct1/home"))
+        out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                             capture_output=True, text=True, env=env)
+        self.assertEqual(out.stdout.count("acct1/home/AGENTS.md"), 1, out.stdout)
+
+    def test_codex_home_outside_home_is_ignored(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        env = dict(os.environ, CODEX_HOME=outside)
+        subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                       capture_output=True, text=True, env=env)
+        self.assertEqual(os.listdir(outside), [])
 
     def test_created_file_follows_the_umask(self):
         self.home.mkdir(".codex")

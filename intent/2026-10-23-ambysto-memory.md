@@ -72,7 +72,7 @@ the project repos, that every Ambysto session reads:
   | Tier | Harness | Global instruction file (to confirm when built) | Installed 2026-10-23 |
   |---|---|---|---|
   | 1 | Claude Code | `~/.claude/CLAUDE.md`, through the claudecode-guide global block | yes |
-  | 2 | Codex | `~/.codex/AGENTS.md` | yes |
+  | 2 | Codex | `$CODEX_HOME/AGENTS.md` (default `~/.codex`), and each Orca account home | yes |
   | 2 | Grok Build | `~/.grok/AGENTS.md` | yes |
   | 2 | Muse Code | reads `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`, so tiers 1–2 cover it | yes |
   | 2 | Oh My Pi | its global `AGENTS.md` (path to confirm) | no |
