@@ -32,7 +32,7 @@ except where noted.
     and base64 runs of 32+, UUIDs, e-mail addresses, `/home/<name>/` paths, and hosts.
     Hosts are found three ways, and a host passes only when it equals an allowed domain or
     ends in `.` + one (so `nuget.pkg.github.com` passes through `github.com`):
-    1. every `scheme://host` URL (any scheme);
+    1. every URL with a scheme (any scheme), by its host;
     2. every bare `label(.label)+.tld` token whose last label is in a short TLD list
        (`com net org io dev ai co me cloud xyz vn`), so file names (`check.py`, `INDEX.md`,
        `win11.qcow2`, `AmbystoLean.dll`, `vm-gates.sh`, `Lean.app`) never match;
@@ -49,7 +49,7 @@ except where noted.
   directions (a planted bad value fails; the allowed values pass: the file names above,
   a 7- and a 12-char SHA, `nuget.pkg.github.com`, `tune.ambysto.com`, `ssh win11`,
   `C:\Users\ambytest\src`, `\\localhost\ambynet`; refused: a 40-char SHA, a made-up
-  `plane.example.dev`, `x.vercel.app`, a UUID, an e-mail), plus the mutations named in
+  host under `.dev`, a Vercel deployment host, a UUID, an e-mail), plus the mutations named in
   intent criteria 1, 2 and 7. The planted values are built at run time (joined from
   pieces), so the test file itself holds none and `check.py` PASSes on the real repo.
 - `hooks/pre-commit`: `exec python3 scripts/check.py`. `README.md`: layout, the lesson

@@ -1,3 +1,29 @@
 # ambysto-memory
 
-Shared, owner-reviewed memory for every Ambysto repo and session. Tracked in Plane as APS-36.
+Shared, owner-reviewed memory for every Ambysto repo and session, in any coding agent.
+Tracked in Plane as APS-36.
+
+- `INDEX.md`: one line per active lesson, generated. Read it first.
+- `lessons/<slug>.md`: one lesson per file.
+- `AGENTS.md`: how any agent reads the memory and drafts a lesson.
+- `scripts/check.py`: lesson shape, `INDEX.md` in step, refused secret and identifying
+  text, stale lessons (over 90 days) listed. `python3 scripts/check.py --write-index`
+  after changing a lesson.
+- `hooks/pre-commit`: runs the check on what is staged.
+
+## Set up a clone
+
+```sh
+git clone https://github.com/ambysto/ambysto-memory ~/work/ambysto/ambysto-memory
+git -C ~/work/ambysto/ambysto-memory config core.hooksPath hooks
+```
+
+The hook stops a commit whose staged files fail the check. `--no-verify` and edits on the
+GitHub web page get past it; the owner's PR review is the last check.
+
+## Test
+
+```sh
+python3 -m unittest scripts/test_check.py
+python3 scripts/check.py
+```

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Refuse a commit whose staged files fail the check (shape, INDEX.md, secrets).
+# Install once per clone: git config core.hooksPath hooks
+exec python3 "$(git rev-parse --show-toplevel)/scripts/check.py" --staged
