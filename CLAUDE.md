@@ -1,7 +1,7 @@
 # ambysto-memory: shared, owner-reviewed memory for every Ambysto repo (Plane APS, GitHub ambysto/ambysto-memory)
 
 ## What it does
-Holds the lessons, decisions and references that every Ambysto session needs, whatever repo or worktree it runs in, on the Ubuntu machine and the Mac. One file per lesson in `lessons/`, one line per lesson in `INDEX.md`. Sessions read `INDEX.md` before non-trivial work and open the lessons that match. Private. Standard library Python only. The design is in `intent/2026-10-23-ambysto-memory.md`.
+Holds the lessons, decisions and references that every Ambysto session needs, whatever repo or worktree it runs in, on the Ubuntu machine and the Mac. One file per lesson in `lessons/`, one line per lesson in `INDEX.md`. Sessions read `INDEX.md` before non-trivial work and open the lessons that match. Public on GitHub (the intent planned a private repo; it was made public later). Standard library Python only. The design is in `intent/2026-10-23-ambysto-memory.md`.
 Cost of a bug: a wrong or stale lesson is followed by every later session, silently; a lesson moved out of `CLAUDE.md` and lost is guidance no session gets any more; a secret written here reaches GitHub.
 
 ## Verify
