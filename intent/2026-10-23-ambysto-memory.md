@@ -78,15 +78,15 @@ the project repos, that every Ambysto session reads:
   | 2 | Oh My Pi | its global `AGENTS.md` (path to confirm) | no |
   | 2 | Cursor CLI | to confirm | no |
   | 3 | OpenCode | `~/.config/opencode/AGENTS.md` | yes |
-  | 3 | Antigravity CLI | `~/.gemini/GEMINI.md` or `~/.gemini/AGENTS.md` | yes |
-  | 3 | Hermes | `AGENTS.md` if it reads a global one, else `~/.hermes/SOUL.md` between markers | yes |
+  | 3 | Antigravity CLI | `~/.gemini/GEMINI.md` (not also `AGENTS.md` there: both would load) | yes |
+  | 3 | Hermes | `~/.hermes/SOUL.md`, its only global file, between markers | yes |
   | 3 | Codewhale | a file named in `instructions = [...]` of its config | no |
   | 3 | DeepSeek Harness | to confirm | no |
 
   A harness not installed is documented in `AGENTS.md` and wired when the owner installs it.
 - **Recall:** the recall paragraph tells every session, before
   non-trivial work and when a command fails in a way that may have a known fix, to update
-  the clone (`git pull --ff-only`, only when it is on `main`; on another branch or offline,
+  the clone (`git pull --ff-only`, only when it is on `main`; on another branch, offline, or when a sandbox refuses the pull,
   read it as it is and say so) and read `INDEX.md`, and to name the lesson it used when
   one changes what it does. No hook, no tool.
 - **Review:** an agent drafts a lesson in a PR; the owner merging the PR is the approval.

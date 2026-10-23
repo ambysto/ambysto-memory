@@ -30,14 +30,14 @@ except where noted.
     `sk-`, `xox`, AWS key ids, PEM headers, `password=`/`token=`/`key=` with a value),
     hex runs of 13+ characters (so full commit SHAs are refused, short ones up to 12 pass)
     and base64 runs of 32+, UUIDs, e-mail addresses, `/home/<name>/` paths, and hosts.
-    Hosts are found two ways, and a host passes only when it equals an allowed domain or
+    Hosts are found three ways, and a host passes only when it equals an allowed domain or
     ends in `.` + one (so `nuget.pkg.github.com` passes through `github.com`):
     1. every `scheme://host` URL (any scheme);
     2. every bare `label(.label)+.tld` token whose last label is in a short TLD list
-       (`com net org io dev ai co me cloud xyz`), so file names (`check.py`, `INDEX.md`,
+       (`com net org io dev ai co me cloud xyz vn`), so file names (`check.py`, `INDEX.md`,
        `win11.qcow2`, `AmbystoLean.dll`, `vm-gates.sh`, `Lean.app`) never match;
-    3. deployment suffixes refused whatever the TLD: `vercel.app`, `netlify.app`,
-       `pages.dev`, `fly.dev`, `herokuapp.com`.
+    3. `vercel.app` hosts, refused whatever the rest (the owner deploys on Vercel; other
+       `.dev`/`.com` deployment hosts are already caught by 2).
     Allowed domains (a list in the script, changed only by a reviewed PR): `github.com`,
     `githubusercontent.com`, `microsoft.com`, `nuget.org`, `python.org`, `anthropic.com`,
     `claude.com`, `ambysto.com`. Allowed by rule: `~` paths, the SSH aliases and test-bed
@@ -50,13 +50,16 @@ except where noted.
   a 7- and a 12-char SHA, `nuget.pkg.github.com`, `tune.ambysto.com`, `ssh win11`,
   `C:\Users\ambytest\src`, `\\localhost\ambynet`; refused: a 40-char SHA, a made-up
   `plane.example.dev`, `x.vercel.app`, a UUID, an e-mail), plus the mutations named in
-  intent criteria 1, 2 and 7.
+  intent criteria 1, 2 and 7. The planted values are built at run time (joined from
+  pieces), so the test file itself holds none and `check.py` PASSes on the real repo.
 - `hooks/pre-commit`: `exec python3 scripts/check.py`. `README.md`: layout, the lesson
   shape, and the one-time `git config core.hooksPath hooks`.
 - `AGENTS.md`: the harness-neutral manual (intent, "Harness-neutral"): how to recall
   (pull on `main`, read `INDEX.md`, open matching lessons, name the one used), how to
   draft a lesson (shape, branch `aps-NN-slug` or `lesson-slug`, PR, never merge), the
-  secret rule, and the harness table with each global instruction file.
+  secret rule, and the harness table with each global instruction file. Its first line:
+  "This repo's own rules are in `CLAUDE.md`; read it before changing anything here"
+  (Codex, OpenCode and Hermes load `AGENTS.md` instead of `CLAUDE.md`).
 - `INDEX.md` (empty list), `lessons/.gitkeep`.
 
 ### Step 2: the lessons (repo `ambysto-memory`, branch `aps-36-lessons`)
@@ -85,7 +88,7 @@ local `main` lags) at `~/work/ambysto/claudecode-guide-aps36`, never in the
   "Ambysto repos share one reviewed memory in `~/work/ambysto/ambysto-memory`. Before
   non-trivial work, and when a command fails in a way that may have a known fix: if the
   clone is on `main`, `git -C ~/work/ambysto/ambysto-memory pull --ff-only` (on another
-  branch or offline, read it as it is and say so); read `INDEX.md`; open the lessons whose
+  branch, offline, or when a sandbox refuses the pull, read it as it is and say so); read `INDEX.md`; open the lessons whose
   line matches. When a lesson changes what you do, name it. To add or change a lesson,
   draft it on a branch there and open a PR; the owner's merge is the approval. Claude
   Code's per-folder auto-memory is off."
@@ -103,7 +106,9 @@ local `main` lags) at `~/work/ambysto/claudecode-guide-aps36`, never in the
 ### Step 4b: the other harnesses (repo `ambysto-memory`, branch `aps-36-wire`)
 - `scripts/wire.py`, standard library only. A table of harness → global instruction file
   (the intent's table, each path confirmed first from the harness's own docs or binary;
-  Hermes: `AGENTS.md` if it reads a global one, else `~/.hermes/SOUL.md`). For each
+  Antigravity: `~/.gemini/GEMINI.md` only, since both it and `~/.gemini/AGENTS.md` would
+  load; Hermes: `~/.hermes/SOUL.md`, its only global file, markers appended at the end
+  when absent). For each
   harness whose file or config folder exists: back the file up as `<file>.bak-<timestamp>`,
   then write the recall paragraph between `<!-- ambysto-memory:begin -->` and
   `<!-- ambysto-memory:end -->`, creating the file if the harness reads it but it is
@@ -112,9 +117,9 @@ local `main` lags) at `~/work/ambysto/claudecode-guide-aps36`, never in the
   when every installed harness has the current paragraph, 1 otherwise, naming each.
   Claude Code is skipped (step 4a owns it); Muse is covered through Codex and Claude Code.
 - The paragraph is the same text as step 4a's, in `scripts/recall.md`, so all harnesses
-  read the same words; `check.py` fails if the global block text in the guide and
-  `scripts/recall.md` differ (read from the installed `~/.claude/CLAUDE.md`, skipped with
-  a note when it is not installed).
+  read the same words; `wire.py --check` also fails when the recall section of the
+  installed `~/.claude/CLAUDE.md` differs from `scripts/recall.md` (kept out of
+  `check.py`, so a guide update never blocks a lesson commit).
 - `scripts/test_wire.py`: temp HOME only; a fresh write, a second run that changes
   nothing, the owner's text around the markers kept byte for byte (CRLF too), broken
   markers refused, `--check` both ways.
@@ -193,7 +198,7 @@ review; a changed row is rewritten, not ticked.
 | The installer overwrites the machine section | `install.py` only rewrites between its markers (guide rule, checked by its `--check`); a backup is taken in step 5 anyway |
 | `wire.py` damages a harness file the owner wrote (Hermes `SOUL.md`, Codex `AGENTS.md`) | markers only, broken markers refused, backup before every write, byte-for-byte tests including CRLF; hard-review of step 4b |
 | A harness path in the table is wrong, so a harness never sees the paragraph | each path confirmed from the harness's docs or binary before wiring; proof 10 runs each installed harness without telling it the path |
-| The recall text drifts between Claude Code and the others | one source, `scripts/recall.md`; `check.py` compares it with the installed global block |
+| The recall text drifts between Claude Code and the others | one source, `scripts/recall.md`; `wire.py --check` compares it with the installed global block |
 
 ## Proof (what "done" means; run in step 6)
 
@@ -221,11 +226,13 @@ review; a changed row is rewritten, not ticked.
 9. Guide: `python scripts/check.py` and `python scripts/install.py --check` exit 0 after
    the step 4a merge and install.
 10. Intent criterion 9: `wire.py --check` exit 0; `python3 -m unittest scripts/test_wire.py`
-    all pass; then the task of proof 6, headless and with that harness's non-interactive
-    auto-approve flag, once per installed harness, tier 2 first (Codex, Grok Build, Muse),
+    all pass; then the task of proof 6, headless, once per installed harness, with the
+    flags named per harness in the proof record (the non-interactive auto-approve flag and
+    read access to `~/.claude.json` and to the clone outside the cwd), tier 2 first (Codex, Grok Build, Muse),
     then tier 3 (OpenCode, Antigravity, Hermes), from the same worktree, with no path in
     the prompt; each answer names `plane-rest-api`. A harness whose own login or quota
-    fails is reported as such ("not run: <reason>"), not as a recall failure. Oh My Pi,
+    fails, or that has no headless mode (Antigravity and Hermes may not), is reported as
+    such ("not run: <reason>"), not as a recall failure. Oh My Pi,
     Cursor, Codewhale, DeepSeek Harness: "not run: not installed".
 
 ## Review log
@@ -252,3 +259,18 @@ where the table says; no stays/split row moves a rule. Issues, all fixed in this
 Also in this revision, at the owner's request: intent decisions 9–10 (the memory keeps
 working if Claude Code stops; the harness fallback order), `AGENTS.md`, step 4b
 (`wire.py`), proof 10.
+
+**Round 2 (hard-reviewer: Fable 5.1, PASS, 2026-10-23).** Harness paths checked against
+each binary or source (Codex, Grok, Muse, Antigravity, Hermes; OpenCode plausible). Six
+issues after the PASS, all fixed:
+1. MINOR: planted values in `test_check.py` would fail the real-repo check. Fixed: built
+   at run time.
+2. MINOR: sandboxed harnesses refuse the pull, and some have no headless mode. Fixed: the
+   recall reads as is when refused; proof 10 names flags per harness and allows "not run".
+3. MINOR: comparing with the installed guide tied the pre-commit to another repo. Fixed:
+   moved to `wire.py --check`.
+4. MINOR: Antigravity and Hermes paths left open. Fixed: `~/.gemini/GEMINI.md`;
+   `~/.hermes/SOUL.md`, markers appended at the end.
+5. NIT: `vn` added; three ways; extra deployment suffixes removed.
+6. NIT: `AGENTS.md` displaces `CLAUDE.md` for some harnesses. Fixed: its first line points
+   to `CLAUDE.md`.
