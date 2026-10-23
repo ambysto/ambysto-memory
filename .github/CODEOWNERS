@@ -5,3 +5,10 @@
 /COPYING* @ambysto
 /.claude/ @ambysto
 /.github/CODEOWNERS @ambysto
+/lessons/ @ambysto
+/INDEX.md @ambysto
+/AGENTS.md @ambysto
+/CLAUDE.md @ambysto
+/scripts/ @ambysto
+/hooks/ @ambysto
+/intent/ @ambysto
