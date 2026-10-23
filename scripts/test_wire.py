@@ -161,11 +161,91 @@ class WireTests(unittest.TestCase):
         self.home.run()
         self.assertEqual(self.home.read(".claude/CLAUDE.md"), original)
 
-    def test_recall_matches_the_guide_section_text(self):
-        # scripts/recall.md is the guide's "## Shared memory" section: a heading and at most a few lines.
+    def test_recall_has_the_section_shape(self):
+        # Equality with the installed guide section is checked at run time by `wire.py --check`.
         self.assertTrue(RECALL.startswith(wire.CLAUDE_SECTION + "\n"))
         self.assertIn("INDEX.md", RECALL)
         self.assertIn("pull --ff-only", RECALL)
+
+    def test_two_runs_in_one_second_keep_both_backups(self):
+        self.home.write(".codex/AGENTS.md", "v1\n")
+        code, _ = wire.main(["--home", self.home.root]), None
+        self.home.write(".codex/AGENTS.md", "v2\n")
+        wire.main(["--home", self.home.root])
+        contents = sorted(open(b, encoding="utf-8").read() for b in self.home.backups(".codex/AGENTS.md"))
+        self.assertEqual(len(contents), 2, contents)
+        self.assertTrue(contents[0].startswith("v1") and contents[1].startswith("v2"), contents)
+
+    def test_folder_at_the_target_is_refused_and_others_still_run(self):
+        self.home.mkdir(".codex/AGENTS.md")
+        self.home.mkdir(".grok")
+        code, out = self.home.run()
+        self.assertEqual(code, 2, out)
+        self.assertIn("REFUSED: ~/.codex/AGENTS.md: is a folder", out)
+        self.assertIn("Grok Build: wrote ~/.grok/AGENTS.md (created)", out)
+
+    def test_read_only_file_is_refused_without_a_stray_backup(self):
+        self.home.write(".codex/AGENTS.md", "mine\n")
+        os.chmod(self.home.path(".codex/AGENTS.md"), 0o444)
+        self.addCleanup(os.chmod, self.home.path(".codex/AGENTS.md"), 0o644)
+        code, out = self.home.run()
+        self.assertEqual(code, 2, out)
+        self.assertIn("not writable; not touched", out)
+        self.assertEqual(self.home.backups(".codex/AGENTS.md"), [])
+        self.assertEqual(self.home.read(".codex/AGENTS.md"), "mine\n")
+
+    def test_dangling_symlink_is_refused(self):
+        self.home.mkdir(".codex")
+        os.symlink(self.home.path("nowhere.md"), self.home.path(".codex/AGENTS.md"))
+        code, out = self.home.run()
+        self.assertEqual(code, 2, out)
+        self.assertIn("a symlink to a missing file", out)
+
+    def test_symlink_stays_a_link_and_its_target_is_written(self):
+        self.home.write("dotfiles/codex-agents.md", "mine\n")
+        self.home.mkdir(".codex")
+        os.symlink(self.home.path("dotfiles/codex-agents.md"), self.home.path(".codex/AGENTS.md"))
+        code, out = self.home.run()
+        self.assertEqual(code, 0, out)
+        self.assertTrue(os.path.islink(self.home.path(".codex/AGENTS.md")))
+        self.assertIn(wire.BEGIN, self.home.read("dotfiles/codex-agents.md"))
+        self.assertEqual(len(self.home.backups("dotfiles/codex-agents.md")), 1)
+
+    def test_no_temp_file_left_behind(self):
+        self.home.write(".codex/AGENTS.md", "mine\n")
+        self.home.run()
+        self.assertEqual([f for f in os.listdir(self.home.path(".codex")) if f.startswith(".wire-")], [])
+
+    def test_fenced_marker_example_is_not_the_block(self):
+        owner = "Example:\n```\n" + wire.BEGIN + "\nexample text\n" + wire.END + "\n```\nend\n"
+        self.home.write(".codex/AGENTS.md", owner)
+        code, out = self.home.run()
+        self.assertEqual(code, 0, out)
+        text = self.home.read(".codex/AGENTS.md")
+        self.assertTrue(text.startswith(owner), text)
+        self.assertIn("example text", text)
+        self.assertEqual(self.home.run()[0], 0)  # and a second run finds its own block
+
+    def test_space_padded_markers_are_the_block(self):
+        self.home.write(".codex/AGENTS.md", "top\n  " + wire.BEGIN + "  \nold\n " + wire.END + "\nbottom\n")
+        code, out = self.home.run()
+        self.assertEqual(code, 0, out)
+        text = self.home.read(".codex/AGENTS.md")
+        self.assertEqual(text.count(wire.BEGIN), 1, text)
+        self.assertTrue(text.startswith("top\n") and text.endswith("bottom\n"), text)
+
+    def test_marker_text_inside_a_line_is_refused(self):
+        self.home.write(".codex/AGENTS.md", "see " + wire.BEGIN + " here\n")
+        code, out = self.home.run()
+        self.assertEqual(code, 2, out)
+        self.assertIn("not on a line of its own", out)
+
+    def test_mostly_lf_file_gets_an_lf_block(self):
+        self.home.write(".codex/AGENTS.md", "a\nb\nc\r\nd\n")
+        self.home.run()
+        text = self.home.read(".codex/AGENTS.md")
+        block = text[text.index(wire.BEGIN):]
+        self.assertNotIn("\r\n", block)
 
 
 if __name__ == "__main__":

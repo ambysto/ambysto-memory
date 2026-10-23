@@ -18,6 +18,7 @@ import argparse
 import datetime
 import os
 import sys
+import tempfile
 
 BEGIN = "<!-- ambysto-memory:begin -->"
 END = "<!-- ambysto-memory:end -->"
@@ -49,7 +50,9 @@ def read_recall():
 
 
 def newline_of(text):
-    return "\r\n" if "\r\n" in text else "\n"
+    """The file's main line ending: CRLF only when most line ends are CRLF."""
+    crlf = text.count("\r\n")
+    return "\r\n" if crlf and crlf > text.count("\n") - crlf else "\n"
 
 
 def block(recall, nl):
@@ -57,19 +60,38 @@ def block(recall, nl):
     return BEGIN + nl + body + END + nl
 
 
+def marker_lines(text):
+    """Offsets (start, end including the line end, marker) of marker lines outside code fences.
+
+    A marker counts only as a whole line (spaces around it allowed); one inside a ``` or ~~~
+    fence is an example, not a marker.
+    """
+    found, fence, pos = [], None, 0
+    for line in text.splitlines(True):
+        bare = line.strip()
+        if fence is None and (bare.startswith("```") or bare.startswith("~~~")):
+            fence = bare[:3]
+        elif fence is not None and bare.startswith(fence):
+            fence = None
+        elif fence is None and bare in (BEGIN, END):
+            found.append((pos, pos + len(line), bare))
+        pos += len(line)
+    return found
+
+
 def split(text, path):
     """Return (before, inside, after) around the markers, or None when there are none."""
-    begins, ends = text.count(BEGIN), text.count(END)
-    if begins == 0 and ends == 0:
+    found = marker_lines(text)
+    loose = text.count(BEGIN) + text.count(END)
+    if not found:
+        if loose and "```" not in text and "~~~" not in text:
+            raise Refused("%s: ambysto-memory marker text not on a line of its own; fix by hand" % path)
         return None
-    if begins != 1 or ends != 1 or text.index(BEGIN) > text.index(END):
-        raise Refused("%s: broken ambysto-memory markers (need exactly one begin before one end); fix by hand" % path)
-    start = text.index(BEGIN)
-    stop = text.index(END) + len(END)
-    nl = newline_of(text)
-    if text.startswith(nl, stop):
-        stop += len(nl)
-    return text[:start], text[start:stop], text[stop:]
+    kinds = [kind for _, _, kind in found]
+    if kinds != [BEGIN, END]:
+        raise Refused("%s: broken ambysto-memory markers (need exactly one begin line before one end line); "
+                      "fix by hand" % path)
+    return text[:found[0][0]], text[found[0][0]:found[1][1]], text[found[1][1]:]
 
 
 def wired_text(text, recall, path):
@@ -83,13 +105,16 @@ def wired_text(text, recall, path):
     return before + block(recall, nl) + after
 
 
-def read_bytes(path):
+def read_bytes(path, shown=None):
+    shown = shown or path
+    if os.path.isdir(path):
+        raise Refused("%s: is a folder, not a file" % shown)
     with open(path, "rb") as fh:
         data = fh.read()
     try:
         return data.decode("utf-8")
     except UnicodeDecodeError:
-        raise Refused("%s: not UTF-8; not touched" % path)
+        raise Refused("%s: not UTF-8; not touched" % shown)
 
 
 def claude_section(home):
@@ -110,6 +135,62 @@ def claude_section(home):
     return "\n".join(out).strip() + "\n"
 
 
+def backup_path(path, stamp):
+    """A backup name that does not exist yet (two runs in one second must not share one)."""
+    base = "%s.bak-%s" % (path, stamp)
+    candidate, n = base, 1
+    while os.path.lexists(candidate):
+        candidate, n = "%s-%d" % (base, n), n + 1
+    return candidate
+
+
+def write_atomically(path, data):
+    """Write through a temp file in the same folder, then rename over the target."""
+    folder = os.path.dirname(path)
+    fd, tmp = tempfile.mkstemp(prefix=".wire-", dir=folder)
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(data)
+            fh.flush()
+            os.fsync(fh.fileno())
+        if os.path.exists(path):
+            os.chmod(tmp, os.stat(path).st_mode & 0o7777)
+        os.replace(tmp, path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+
+
+def wire_one(name, rel, home, recall, check, stamp, problems):
+    """Wire or check one harness. Raises Refused or OSError on doubt; never writes outside its markers."""
+    link = os.path.join(home, rel)
+    # Write through a symlink to its target, so the link itself stays a link.
+    path = os.path.realpath(link) if os.path.islink(link) else link
+    if os.path.islink(link) and not os.path.exists(path):
+        raise Refused("~/%s: a symlink to a missing file" % rel)
+    text = read_bytes(path, "~/" + rel) if os.path.exists(path) else ""
+    new = wired_text(text, recall, "~/" + rel)
+    if new == text:
+        print("%s: current (~/%s)" % (name, rel))
+        return
+    if check:
+        problems.append("%s: ~/%s %s" % (name, rel, "lacks the recall block" if split(text, rel) is None else "has an old recall block"))
+        return
+    if os.path.exists(path):
+        if not os.access(path, os.W_OK) or not os.access(os.path.dirname(path), os.W_OK):
+            raise Refused("~/%s: not writable; not touched" % rel)
+        backup = backup_path(path, stamp)
+        with open(backup, "xb") as fh:
+            fh.write(text.encode("utf-8"))
+        note = "backup %s" % backup.replace(home, "~", 1)
+    else:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        note = "created"
+    write_atomically(path, new.encode("utf-8"))
+    print("%s: wrote ~/%s (%s)" % (name, rel, note))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Wire the shared-memory recall into each harness.")
     parser.add_argument("--check", action="store_true")
@@ -128,7 +209,11 @@ def main(argv=None):
     problems, refused = [], []
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    section = claude_section(home)
+    try:
+        section = claude_section(home)
+    except (Refused, OSError) as exc:
+        print("cannot read ~/%s: %s" % (CLAUDE_FILE, exc), file=sys.stderr)
+        return 2
     if section is None:
         print("Claude Code: %s not found; not checked" % CLAUDE_FILE)
     elif section != recall:
@@ -141,33 +226,14 @@ def main(argv=None):
         if not os.path.isdir(os.path.join(home, marker_dir)):
             print("%s: not installed (no ~/%s)" % (name, marker_dir))
             continue
-        path = os.path.join(home, rel)
         try:
-            text = read_bytes(path) if os.path.exists(path) else ""
-            new = wired_text(text, recall, "~/" + rel)
+            wire_one(name, rel, home, recall, args.check, stamp, problems)
         except Refused as exc:
             refused.append(str(exc))
-            continue
-        if new == text:
-            print("%s: current (~/%s)" % (name, rel))
-            continue
-        if args.check:
-            problems.append("%s: ~/%s %s" % (name, rel, "lacks the recall block" if split(text, rel) is None else "has an old recall block"))
-            continue
-        if os.path.exists(path):
-            backup = "%s.bak-%s" % (path, stamp)
-            with open(backup, "wb") as fh:
-                fh.write(text.encode("utf-8"))
-            note = "backup ~/%s" % os.path.relpath(backup, home)
-        else:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            note = "created"
-        with open(path, "wb") as fh:
-            fh.write(new.encode("utf-8"))
-        print("%s: wrote ~/%s (%s)" % (name, rel, note))
+        except OSError as exc:
+            refused.append("%s: ~/%s: %s; not touched" % (name, rel, exc.strerror or exc))
 
-    for name in DOCUMENTED_ONLY:
-        print("%s: documented only (AGENTS.md, \"Harnesses\")" % name)
+    print("Documented only (AGENTS.md, \"Harnesses\"): " + ", ".join(DOCUMENTED_ONLY))
     for line in refused:
         print("REFUSED: " + line)
     for line in problems:
