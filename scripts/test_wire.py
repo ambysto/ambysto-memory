@@ -277,6 +277,63 @@ class WireTests(unittest.TestCase):
                              capture_output=True, text=True, env=env)
         self.assertEqual(out.stdout.count("acct1/home/AGENTS.md"), 1, out.stdout)
 
+    def run_env(self, **env):
+        full = {k: v for k, v in os.environ.items() if k != "CODEX_HOME"}
+        full.update(env)
+        out = subprocess.run([sys.executable, os.path.join(HERE, "wire.py"), "--home", self.home.root],
+                             capture_output=True, text=True, env=full)
+        return out.returncode, out.stdout + out.stderr
+
+    def test_codex_home_symlinked_out_of_home_is_not_written(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        os.symlink(outside, self.home.path("esc"))
+        code, out = self.run_env(CODEX_HOME=self.home.path("esc"))
+        self.assertIn("NOTE: Codex (CODEX_HOME):", out)
+        self.assertEqual(os.listdir(outside), [])
+
+    def test_orca_account_symlinked_out_of_home_is_not_written(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        os.makedirs(os.path.join(outside, "acct", "home"))
+        self.home.mkdir(".config/orca/codex-accounts")
+        os.symlink(os.path.join(outside, "acct"), self.home.path(".config/orca/codex-accounts/lnkout"))
+        code, out = self.run_env()
+        self.assertIn("resolves outside the home; not wired", out)
+        self.assertEqual(os.listdir(os.path.join(outside, "acct", "home")), [])
+
+    def test_harness_file_symlinked_out_of_home_is_refused(self):
+        outside = tempfile.mkdtemp(prefix="amem-outside-")
+        self.addCleanup(shutil.rmtree, outside, True)
+        with open(os.path.join(outside, "AGENTS.md"), "w") as fh:
+            fh.write("theirs\n")
+        self.home.mkdir(".grok")
+        os.symlink(os.path.join(outside, "AGENTS.md"), self.home.path(".grok/AGENTS.md"))
+        code, out = self.run_env()
+        self.assertEqual(code, 2, out)
+        self.assertIn("resolves outside the home; not touched", out)
+        with open(os.path.join(outside, "AGENTS.md")) as fh:
+            self.assertEqual(fh.read(), "theirs\n")
+
+    def test_unreadable_orca_folder_is_a_note_not_a_crash(self):
+        self.home.mkdir(".config/orca/codex-accounts/acct1/home")
+        os.chmod(self.home.path(".config/orca/codex-accounts"), 0)
+        self.addCleanup(os.chmod, self.home.path(".config/orca/codex-accounts"), 0o755)
+        code, out = self.run_env()
+        self.assertIn("NOTE: Codex (Orca accounts):", out)
+        self.assertNotIn("Traceback", out)
+
+    def test_orca_runtime_home_is_wired(self):
+        self.home.mkdir(".config/orca/codex-runtime-home/home")
+        code, out = self.run_env()
+        self.assertEqual(code, 0, out)
+        self.assertIn(wire.BEGIN, self.home.read(".config/orca/codex-runtime-home/home/AGENTS.md"))
+
+    def test_codex_home_not_a_folder_is_a_note(self):
+        self.home.write("afile", "x")
+        code, out = self.run_env(CODEX_HOME=self.home.path("afile"))
+        self.assertIn("is not a folder; not wired", out)
+
     def test_codex_home_outside_home_is_ignored(self):
         outside = tempfile.mkdtemp(prefix="amem-outside-")
         self.addCleanup(shutil.rmtree, outside, True)
