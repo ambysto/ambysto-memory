@@ -171,8 +171,8 @@ review; a changed row is rewritten, not ticked.
 | A12 | steady `plane-sic-rest-api.md` | lesson, merged into A1 | `plane-rest-api`. "SIC ticket names in Vietnamese" is in Steady's `CLAUDE.md`; the description sections (Bối cảnh / Đã làm / Tiêu chí xong, as `description_html`) cannot go there (its docs-language test), so they go into the lesson | ☑ 2026-10-23 |
 | A13 | steady `windows-test-vm.md` | lesson, merged with C2/C8 | `win11-vm-layout` and `win11-snapshots` (reference); `clean-no-globalsign` = Steady's SIC-130 repro | ☑ 2026-10-23 |
 | A14 | ambysto (root) `address-owner-as-sir.md` (written 2026-10-23 10:13 by another session, after plan acceptance) | lesson | `address-owner-as-sir` (convention, all): the owner is addressed as "Sir" ("Dạ Sir, …" in Vietnamese), naturally, not in every sentence | ☑ 2026-10-23 |
-| A15 | space `flag-owner-mistakes.md` (written 10:41 by a running session) | lesson | `flag-owner-mistakes` (correction, all) | ☐ |
-| A16 | space `close-duplicate-tickets.md` (written 10:42 by a running session) | lesson | `close-duplicate-tickets` (convention, all); the Cancelled state id is not copied: looked up by name | ☐ |
+| A15 | space `flag-owner-mistakes.md` (written 10:41 by a running session) | lesson | `flag-owner-mistakes` (correction, all) | ☑ 2026-10-23 |
+| A16 | space `close-duplicate-tickets.md` (written 10:42 by a running session) | lesson | `close-duplicate-tickets` (convention, all); the Cancelled state id is not copied: looked up by name | ☑ 2026-10-23 |
 
 ### `~/.claude/CLAUDE.md`, machine section (after the guide block, 12 KB)
 
