@@ -88,7 +88,6 @@ def codex_homes(home, env, notes):
     return out
 
 
-
 CLAUDE_SECTION = "## Shared memory"
 
 

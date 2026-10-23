@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -53,6 +54,11 @@ class WireTests(unittest.TestCase):
     def setUp(self):
         self.home = Home()
         self.addCleanup(shutil.rmtree, self.home.root, True)
+        # Never let a test (or a mutant of wire.py) reach the developer's real Codex home.
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        os.environ.pop("CODEX_HOME", None)
 
     def test_creates_missing_file_for_an_installed_harness(self):
         self.home.mkdir(".codex")
