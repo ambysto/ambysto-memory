@@ -245,7 +245,8 @@ class WireTests(unittest.TestCase):
         self.assertEqual(self.home.run("--check")[0], 0)
 
     def test_open_fence_at_the_end_is_refused_before_any_write(self):
-        for text in ("rules\n```\ncode\n", "rules\n```bash``` blocks are run as shell.\n"):
+        for text in ("rules\n```\ncode\n", "rules\n```bash``` blocks are run as shell.\n",
+                     "doc\n```\n~~~ not a closer\nstill code\n"):
             with self.subTest(text=text):
                 self.home.write(".codex/AGENTS.md", text)
                 code, out = self.home.run()

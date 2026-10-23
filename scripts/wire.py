@@ -64,13 +64,26 @@ def is_fence(line):
     return line.lstrip().startswith(("```", "~~~"))
 
 
+def fence_open(lines):
+    """True when a fence is still open after these lines; a fence closes only on its own kind."""
+    opener = None
+    for line in lines:
+        if is_fence(line):
+            kind = line.lstrip()[0]
+            if opener is None:
+                opener = kind
+            elif kind == opener:
+                opener = None
+    return opener is not None
+
+
 def split(text, path):
     """Return (before, inside, after) around the block, or None when the file has no marker text.
 
     wire.py always appends its block at the end of the file, so a block is recognised only when:
     each marker is a line of its own, exactly; there is one begin line before one end line and no
     other marker text anywhere; only blank lines follow the end line; no code fence line is inside
-    the block; and an even number of fence lines comes before it (no fence is open). A marker in
+    the block; and no fence is open before it. A marker in
     any other form or place could be an example the owner wrote: refused, the file is not touched.
     """
     total = text.count(BEGIN) + text.count(END)
@@ -83,7 +96,7 @@ def split(text, path):
         first, last = exact[0][0], exact[1][0]
         ok = (all(not line.strip() for line in lines[last + 1:])
               and not any(is_fence(line) for line in lines[first:last + 1])
-              and sum(1 for line in lines[:first] if is_fence(line)) % 2 == 0)
+              and not fence_open(lines[:first]))
     if not ok:
         raise Refused("%s: ambysto-memory marker text in an unexpected form or place (the block must be "
                       "one begin line and one end line, each alone on its line, at the end of the file, "
@@ -95,9 +108,10 @@ def wired_text(text, recall, path):
     """The file's text with the current block, everything else byte for byte."""
     nl = newline_of(text) if text else "\n"
     parts = split(text, path)
-    if parts is None and sum(1 for line in text.splitlines() if is_fence(line)) % 2:
-        raise Refused("%s: a code fence is still open at the end of the file; a block appended there would "
-                      "be read as code; close the fence by hand" % path)
+    if parts is None and fence_open(text.splitlines()):
+        raise Refused("%s: a code fence looks open at the end of the file (fences are matched by kind, ``` or "
+                      "~~~, not by length); a block appended there could be read as code; close the fence, or "
+                      "add a blank line and the recall block by hand" % path)
     if parts is None:
         sep = "" if not text or text.endswith(nl + nl) else (nl if text.endswith(nl) else nl + nl)
         return text + sep + block(recall, nl)
