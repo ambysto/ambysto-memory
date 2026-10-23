@@ -29,6 +29,7 @@ A private repo `ambysto/ambysto-memory`, cloned at `~/work/ambysto/ambysto-memor
 the project repos, that every Ambysto session reads:
 
 - `lessons/<slug>.md`, one lesson per file, in a fixed shape:
+  - the file name is the slug (lowercase, digits, hyphens);
   - `title`: imperative, under 80 characters, names the tool, file or error;
   - `kind`: `workflow`, `correction`, `debugging_pattern`, `gotcha`, `convention`,
     `decision` (what was decided, why, and the options turned down) or `reference`
@@ -52,11 +53,38 @@ the project repos, that every Ambysto session reads:
 - **What counts as secret or identifying** (refused): keys, tokens, passwords and
   credential-shaped strings; UUIDs and other account, workspace or project ids; e-mail
   addresses; hostnames and URLs of real services other than public, well-known ones
-  (github.com, learn.microsoft.com and the like). **Allowed:** local paths written from `~`
+  (github.com and its subdomains, learn.microsoft.com and the like) and the owner's public
+  domain `ambysto.com` with its subdomains; deployment hosts such as `*.vercel.app` are
+  refused (name the Vercel project instead). Workspace slugs and similar names a pattern
+  cannot catch are left out of lessons by rule and checked in review. **Allowed:** local paths written from `~`
   (not `/home/<account>`), SSH aliases from
   `~/.ssh/config` (`win11`, `win11-test`), the test bed's own names (`win11-dev`, `Ramune`,
-  `ambytest`, `\\localhost\ambynet`), ticket ids (APS-36) and repo names.
-- **Recall:** one line in the claudecode-guide global block tells every session, before
+  `ambytest`, `\\localhost\ambynet`), ticket ids (APS-36), repo names, and short commit
+  SHAs (up to 12 characters; evidence cites a PR or ticket, not a full SHA).
+- **Harness-neutral.** Everything is Markdown, standard library Python and git, so any
+  coding agent that reads an instruction file and runs shell commands can use it. How to
+  read and write the memory is written once, in `AGENTS.md` at the repo root. Each harness
+  gets the same short recall paragraph, between markers, in its global instruction file,
+  pointing to that `AGENTS.md`; `scripts/wire.py` writes it (backup first, only between its
+  markers) into the files of the harnesses installed, and `wire.py --check` reports any
+  that miss it. Harnesses, in the owner's fallback order (decision 10):
+
+  | Tier | Harness | Global instruction file (to confirm when built) | Installed 2026-10-23 |
+  |---|---|---|---|
+  | 1 | Claude Code | `~/.claude/CLAUDE.md`, through the claudecode-guide global block | yes |
+  | 2 | Codex | `~/.codex/AGENTS.md` | yes |
+  | 2 | Grok Build | `~/.grok/AGENTS.md` | yes |
+  | 2 | Muse Code | reads `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`, so tiers 1–2 cover it | yes |
+  | 2 | Oh My Pi | its global `AGENTS.md` (path to confirm) | no |
+  | 2 | Cursor CLI | to confirm | no |
+  | 3 | OpenCode | `~/.config/opencode/AGENTS.md` | yes |
+  | 3 | Antigravity CLI | `~/.gemini/GEMINI.md` or `~/.gemini/AGENTS.md` | yes |
+  | 3 | Hermes | `AGENTS.md` if it reads a global one, else `~/.hermes/SOUL.md` between markers | yes |
+  | 3 | Codewhale | a file named in `instructions = [...]` of its config | no |
+  | 3 | DeepSeek Harness | to confirm | no |
+
+  A harness not installed is documented in `AGENTS.md` and wired when the owner installs it.
+- **Recall:** the recall paragraph tells every session, before
   non-trivial work and when a command fails in a way that may have a known fix, to update
   the clone (`git pull --ff-only`, only when it is on `main`; on another branch or offline,
   read it as it is and say so) and read `INDEX.md`, and to name the lesson it used when
@@ -90,6 +118,11 @@ the project repos, that every Ambysto session reads:
    under APS-36), so a reinstall keeps it and the Mac gets it.
 8. **Auto-memory is turned off** (`autoMemoryEnabled: false`), not redirected with
    `autoMemoryDirectory`, so every lesson goes through a PR.
+9. **The memory must keep working if Claude Code stops** (owner, 2026-10-23, added after
+   approval): other harnesses read and write it the same way.
+10. **Fallback order** (owner, 2026-10-23): Claude Code; then Oh My Pi, Grok Build, Codex,
+    Cursor, Muse; then OpenCode, Antigravity, Codewhale, Hermes, DeepSeek Harness.
+    Harnesses not installed are documented only, and installed when needed.
 
 Ideas taken from the prior art (read 2026-10-23): reviewed lessons kept apart from raw
 history and approved by a person, the lesson shape and its kinds, supersede instead of
@@ -109,6 +142,7 @@ cross-project scope only when a lesson says so (memorix).
 | 6 | A session in a repo that never had a lesson finds and uses it | a fresh session in a worktree (e.g. `ambysto-space-asp24`) asked to list the latest APS tickets reaches Plane with no 403 retry and names the lesson it used (a read, no tracker write) |
 | 7 | Stale lessons come back | `check.py` lists a lesson whose `last_validated` is set back 91 days (mutation) |
 | 8 | The Mac reads the same memory and its auto-memory is off | not run here: Mac, owner step (list and migrate its auto-memory, clone, install the hook, `autoMemoryEnabled: false`, one session recalls a lesson) |
+| 9 | Every installed harness other than Claude Code finds and uses a lesson | `wire.py --check` exit 0; then, tier 2 before tier 3, one headless session per installed harness (Codex, Grok Build, Muse, OpenCode, Antigravity, Hermes), given the same read-only task as criterion 6 and no path, names lesson `plane-rest-api`; harnesses not installed: "not run: not installed" |
 
 Accepted, not measured in v1: whether sessions keep recalling after the first proof. A
 known lesson relearned is logged as an owner `incident` in the time log, which is where it
@@ -131,10 +165,13 @@ will show up.
 - Vector or semantic search; a hook that injects the index; a dashboard.
 - Tasks and plans: they stay in Plane and in each repo's `intent/`.
 - Rules that hold for one project only: they stay in that project's `CLAUDE.md`.
+- Making the claudecode-guide rules themselves (rating, review loop, identities, VM rules)
+  reach the other harnesses: only Claude Code reads them today. A separate ticket.
 
 ## Open questions
 
-None. The three earlier ones were answered by the owner on 2026-10-23 (decisions 6–8).
+None. The three earlier ones were answered by the owner on 2026-10-23 (decisions 6–8);
+decisions 9–10 were added after approval, at the owner's request, in the plan's PR.
 `autoMemoryEnabled` was seen in the Claude Code binary, not yet tested; criterion 5 tests it.
 
 ## Review log
