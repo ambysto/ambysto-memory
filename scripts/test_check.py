@@ -276,7 +276,7 @@ class SecretTests(Base):
             "signtool sign /tr http://timestamp.digicert.com /td sha256",
             "a placeholder such as https://example.com/path",
             "Windows build 10.0.26100.1742 and ports on 0.0.0.0, host 127.0.0.1",
-            "SIC tickets: Bối cảnh / Đã làm / Tiêu chí xong, as description_html",
+            "SIC tickets: Context / Done / Done when, as description_html",
             "snapshot ambysto-testbed-2026-10-22-apps and `vm-restore.sh ambysto-testbed-wsl-2026-10-22`",
             "`ssh win11-test powershell -NoProfile -Command Get-ChildItem C:\\Ambysto\\tools`",
             "`gh api repos/ambysto/ambysto-memory/pulls/3 -f base=main --jq .base.ref`",
@@ -344,10 +344,10 @@ class StagedTests(Base):
     def test_non_ascii_and_spaced_file_names(self):
         self.commit_clean()
         token = j("gh", "p_", "A1b2C3d4E5f6G7h8I9j0K1l2")
-        self.repo.write("ghi chú/bối cảnh.txt", "has %s\n" % token)
+        self.repo.write("notes é/café menu.txt", "has %s\n" % token)
         self.repo.git("add", "-A")
-        self.assertFail("ghi chú/bối cảnh.txt:1: refused: GitHub token", "--staged")
-        self.assertFail("ghi chú/bối cảnh.txt:1: refused: GitHub token")
+        self.assertFail("notes é/café menu.txt:1: refused: GitHub token", "--staged")
+        self.assertFail("notes é/café menu.txt:1: refused: GitHub token")
 
     def test_index_is_deterministic(self):
         self.repo.write("lessons/b.md", lesson(title="Beta", kind="workflow"))
