@@ -3,7 +3,7 @@ title: Close a duplicate ticket as Cancelled with a link, without asking
 kind: convention
 applies_when: when a Plane or GitHub ticket exactly duplicates another
 projects: all
-evidence: 2026-10-23 owner, ambysto-space ASP-23 = ASP-24 ("trùng thì đóng thôi, giữ làm gì")
+evidence: 2026-10-23 owner, ambysto-space ASP-23 = ASP-24 ("a duplicate just gets closed, no reason to keep it")
 last_validated: 2026-10-23
 status: active
 ---

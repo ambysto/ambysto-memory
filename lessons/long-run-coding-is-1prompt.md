@@ -1,7 +1,7 @@
 ---
 title: Read "long-run coding" as APS-31, now in ambysto-1prompt
 kind: reference
-applies_when: when the owner says "phiên nghiên cứu long-run coding" or asks to continue the long-run session
+applies_when: when the owner mentions the "long-run coding research session" or asks to continue the long-run session
 projects: all
 evidence: 2026-10-23 APS-31, APS-38, ambysto/1prompt 3be8f1c
 last_validated: 2026-10-23

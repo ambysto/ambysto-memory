@@ -12,7 +12,7 @@ Base URL, workspace slug and API key are in `~/.claude.json`, the `plane` MCP se
 Calls go to `<base>/api/v1/workspaces/<slug>/…` with header `X-API-Key`. Send any custom `User-Agent`: Python's default one gets HTTP 403.
 Find a project's id by its identifier with `GET projects/`, and its states with `GET projects/<id>/states/`; do not copy ids into notes or GitHub.
 Create: `POST projects/<id>/issues/` with `name`, `state`, `labels`, `description_html`. Link a PR: `POST projects/<id>/issues/<issue id>/links/` with `url` and `title`.
-Language per project: APS and AGD in English; SIC ticket names in Vietnamese, descriptions with sections Bối cảnh / Đã làm / Tiêu chí xong.
+Language: every project in English (owner decision 2026-10-24); SIC descriptions use the sections Context / Done / Done when.
 Never put the Plane host, workspace or ids on GitHub: PRs name the ticket only ("Plane: APS-36").
 Auto mode's classifier blocks reading the key ("Credential Exploration"); the owner switches to accept-edits for it.
 Confirm: `GET projects/` returns the project list with HTTP 200.

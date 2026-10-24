@@ -3,7 +3,7 @@ title: Put every file meant for the Windows VM on its Desktop
 kind: convention
 applies_when: when copying a build, release zip or script into the Windows test VM
 projects: all
-evidence: 2026-10-16 owner, Steady SIC-130 ("file nào sau này cũng nên như vậy")
+evidence: 2026-10-16 owner, Steady SIC-130 ("every file from now on should be like this")
 last_validated: 2026-10-16
 status: active
 ---
