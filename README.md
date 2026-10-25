@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/lockup-dark.svg">
+  <img src="docs/brand/lockup-light.svg" alt="Ambysto Memory" height="60">
+</picture>
+
 # Ambysto Memory
 
 What one coding-agent session learns does not reach the next session that needs it, so the same lesson gets
