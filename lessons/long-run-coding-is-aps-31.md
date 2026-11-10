@@ -1,7 +1,7 @@
 ---
 title: Read "long-run coding" as APS-31 in claudecode-guide
 kind: reference
-applies_when: when the owner says "phiên nghiên cứu long-run coding" or asks to continue the long-run session
+applies_when: when the owner mentions the "long-run coding research session" or asks to continue the long-run session
 projects: all
 evidence: 2026-10-22 APS-31, APS-32, APS-34
 last_validated: 2026-10-23

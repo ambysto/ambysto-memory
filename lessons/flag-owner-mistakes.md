@@ -3,7 +3,7 @@ title: Point out an owner instruction that looks like a slip before acting on it
 kind: correction
 applies_when: when an owner instruction conflicts with the session's goal, a recorded decision, or the repo it names
 projects: all
-evidence: 2026-10-23 owner, APS-31 session ("nếu thấy anh nhầm phải nhắc anh chứ")
+evidence: 2026-10-23 owner, APS-31 session ("if you see I am wrong, you have to tell me")
 last_validated: 2026-10-23
 status: active
 ---

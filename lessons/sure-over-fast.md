@@ -3,7 +3,7 @@ title: Prove work before calling it ready; never trade certainty for speed
 kind: correction
 applies_when: when deciding whether a piece of work is ready to hand to the owner
 projects: all
-evidence: 2026-10-16 owner ("Chúng ta không làm lấy nhanh, chỉ làm lấy chắc chắn")
+evidence: 2026-10-16 owner ("We do not work for speed, only for certainty")
 last_validated: 2026-10-16
 status: active
 ---
