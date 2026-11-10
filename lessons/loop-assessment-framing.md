@@ -9,6 +9,6 @@ status: active
 ---
 
 Owner decision 2026-10-18: model credits running out are not a loop defect (the owner tops them up); incidents a model could not know on first contact are part of the process.
-Measure human involvement: how many times, how often, how long each time (`hil-report.py` in claudecode-guide).
+Measure human involvement: how many times, how often, how long each time (`hil-report.py` in coding-playbook).
 A recurring lesson becomes a gate only if it fits that project; a lesson that holds across contexts goes into the shared guide, not into every repo as a gate.
 Why: the goal is a loop with little, measurable human involvement that carries to other projects, not one with no human at all.
