@@ -7,7 +7,7 @@ Usage:
   python3 scripts/wire.py --home DIR  # act on another home folder (tests)
 
 The paragraph is `scripts/recall.md`, the same text as the "## Shared memory" section of the
-claudecode-guide global block, which Claude Code reads (that block is installed by the guide,
+coding-playbook global block, which Claude Code reads (that block is installed by the playbook,
 so this script never writes `~/.claude/CLAUDE.md`; `--check` only compares it).
 Text outside the markers is never changed. Exit 0 done or current, 1 something missing or
 different (`--check`), 2 refused (broken markers, unreadable file) or usage error.
@@ -194,7 +194,7 @@ def claude_section(home):
     lines = rest.split("\n")
     out = [lines[0]]
     for line in lines[1:]:
-        if line.startswith("## ") or line.startswith("<!-- claudecode-guide:end"):
+        if line.startswith("## ") or (line.startswith("<!-- ") and ":end -->" in line):
             break
         out.append(line)
     return "\n".join(out).strip() + "\n"
@@ -291,9 +291,9 @@ def main(argv=None):
         print("Claude Code: %s not found; not checked" % CLAUDE_FILE)
     elif section != recall:
         problems.append("Claude Code: the \"%s\" section in ~/%s differs from scripts/recall.md "
-                        "(install the claudecode-guide block, or update recall.md to match)" % (CLAUDE_SECTION, CLAUDE_FILE))
+                        "(install the coding-playbook block, or update recall.md to match)" % (CLAUDE_SECTION, CLAUDE_FILE))
     else:
-        print("Claude Code: current (claudecode-guide block)")
+        print("Claude Code: current (coding-playbook block)")
 
     notes = []
     for name, marker_dir, rel in codex_homes(home, os.environ, notes) + list(HARNESSES):
