@@ -46,7 +46,10 @@ ALLOWED_DOMAINS = (
     "example.org",
     "example.net",
 )
-ALLOWED_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "10.0.2.2")  # 10.0.2.2: QEMU user-mode NAT host
+ALLOWED_HOSTS = (
+    "localhost", "127.0.0.1", "0.0.0.0", "10.0.2.2",  # QEMU user-mode NAT host
+    "www.w3.org",  # standard SVG XML namespace; exact host, no subdomain allowance
+)
 # Product names that look like hosts under .NET; matched exactly, case-sensitively.
 DOTNET_NAMES = ("ASP.NET", "ADO.NET", "VB.NET", "ML.NET", "Stryker.NET")
 BARE_HOST_TLDS = ("com", "net", "org", "io", "dev", "ai", "co", "me", "cloud", "xyz", "vn")

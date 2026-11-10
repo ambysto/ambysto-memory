@@ -296,6 +296,18 @@ class SecretTests(Base):
                 self.plant(value)
                 self.assertPass()
 
+    def test_svg_namespace_exact_host_only(self):
+        namespace = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"/>'
+        self.assertEqual(list(check.secret_findings(namespace)), [])
+        self.assertTrue(check.host_allowed("www.w3.org"))
+        for host in (j("w3", ".org"), j("evil.", "www.w3.org"),
+                     j("www.w3.org", ".evil.org")):
+            with self.subTest(host=host):
+                self.assertFalse(check.host_allowed(host))
+                findings = list(check.secret_findings("https://" + host + "/2000/svg"))
+                self.assertTrue(any("URL host not on the allow list" in reason
+                                    for _, reason in findings))
+
     def test_every_tracked_file_is_scanned(self):
         self.repo.index()
         self.repo.write("README.md", "Contact %s\n" % j("someone", "@", "example", ".com"))
