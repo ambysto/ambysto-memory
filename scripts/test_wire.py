@@ -46,8 +46,8 @@ class Home:
 
 
 def claude_md(section):
-    return ("<!-- claudecode-guide:begin -->\n# Global\n\n## Owner time log\n- a rule\n\n" + section +
-            "\n## Working practice\n- another\n<!-- claudecode-guide:end -->\n\n## This machine\n- local\n")
+    return ("<!-- coding-playbook:begin -->\n# Global\n\n## Owner time log\n- a rule\n\n" + section +
+            "\n## Working practice\n- another\n<!-- coding-playbook:end -->\n\n## This machine\n- local\n")
 
 
 class WireTests(unittest.TestCase):

@@ -9,7 +9,7 @@ Cost of a bug: a wrong or stale lesson is followed by every later session, silen
 - Owner-only or other-machine checks: cloning on the Mac and a Mac session reading the memory ("not run: Mac, owner step").
 
 ## HARD: the main session does it directly, then hard-reviewer
-- Moving or deleting guidance out of `~/.claude/CLAUDE.md`, the claudecode-guide global block, or a project's `CLAUDE.md`.
+- Moving or deleting guidance out of `~/.claude/CLAUDE.md`, the coding-playbook global block, or a project's `CLAUDE.md`.
 - Turning Claude Code's per-folder auto-memory off, or anything else that changes what loads into every session.
 - The lesson format and what `check.py` refuses (the secret check above all).
 
