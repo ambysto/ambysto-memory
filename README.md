@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/lockup-dark.svg">
+  <img src="docs/brand/lockup-light.svg" alt="Ambysto Memory" height="60">
+</picture>
+
 # Ambysto Memory
 
 What one coding-agent session learns does not reach the next session that needs it, so the same lesson gets
@@ -33,7 +38,7 @@ No, if your work is outside Ambysto: the lessons are about Ambysto's repos, mach
 | `AGENTS.md` | How any agent reads the memory and drafts a lesson. |
 | `scripts/check.py` | Lesson shape, `INDEX.md` in step, refused secret and identifying text, stale lessons (over 90 days) listed. Run `python3 scripts/check.py --write-index` after changing a lesson. |
 | `hooks/pre-commit` | Runs the check on what is staged. |
-| `scripts/wire.py` | Writes the recall paragraph (`scripts/recall.md`, the same text as the claudecode-guide "Shared memory" section) between markers into each installed harness's global instruction file, with a backup; `--check` reports any that miss it. Run it after installing a new harness or changing `recall.md`. |
+| `scripts/wire.py` | Writes the recall paragraph (`scripts/recall.md`, the same text as the coding-playbook "Shared memory" section) between markers into each installed harness's global instruction file, with a backup; `--check` reports any that miss it. Run it after installing a new harness or changing `recall.md`. |
 
 ## Set up a clone
 
