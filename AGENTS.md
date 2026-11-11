@@ -53,6 +53,9 @@ A lesson that turns out wrong or outdated: say so, and draft its replacement (be
    - Body: 3 to 10 non-empty lines.
    - Outdated lesson: never delete it. Set `status: superseded` and
      `superseded_by: <new-slug>`.
+   - Optional `match: <Python regex>` for a lesson a Bash command can trigger (`\bpkill\s+-f\b`): the
+     coding-playbook session gates search each command for it and name the lesson once per session. Without it
+     they use the backticked words in `applies_when`. Keep it narrow: a match on every common command is noise.
 3. `python3 scripts/check.py --write-index` (regenerates `INDEX.md`, then checks), commit,
    push, open a PR. The owner's merge is the approval. Never merge it yourself.
    On the owner's machine you act here as the bot account `ambystobot` (the `gh` wrapper

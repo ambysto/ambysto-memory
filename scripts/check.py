@@ -22,6 +22,9 @@ import sys
 
 KINDS = ("workflow", "correction", "debugging_pattern", "gotcha", "convention", "decision", "reference")
 FIELDS = ("title", "kind", "applies_when", "projects", "evidence", "last_validated", "status")
+# Optional: superseded_by (a superseded lesson's replacement); match (a Python regex the session-gates hook of
+# coding-playbook searches each Bash command for, to name the lesson once per session).
+OPTIONAL = ("superseded_by", "match")
 STALE_DAYS = 90
 INDEX_HEADER = (
     "# Index\n"
@@ -200,7 +203,7 @@ def check_lessons(files, today):
             if not fields.get(key):
                 errors.append((path, 1, "missing field: %s" % key))
         for key in fields:
-            if key not in FIELDS + ("superseded_by",):
+            if key not in FIELDS + OPTIONAL:
                 errors.append((path, 1, "unknown field: %s" % key))
         title = fields.get("title", "")
         if len(title) >= 80:
@@ -226,6 +229,13 @@ def check_lessons(files, today):
                     errors.append((path, 1, "last_validated is in the future"))
                 elif (today - date).days > STALE_DAYS and fields.get("status") == "active":
                     stale.append((path, validated))
+        if "match" in fields:
+            try:
+                if not fields["match"]:
+                    raise re.error("empty")
+                re.compile(fields["match"])
+            except re.error as e:
+                errors.append((path, 1, "match is not a valid regex: %s" % e))
         status = fields.get("status")
         if status and status not in ("active", "superseded"):
             errors.append((path, 1, "status must be active or superseded"))

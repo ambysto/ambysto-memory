@@ -2,6 +2,7 @@
 title: Set Vercel rootDirectory to site and verify live HTTP bodies after deploy
 kind: gotcha
 applies_when: when deploying a repo whose landing page lives in site/ to Vercel
+match: (^|[;&|(\n])\s*(npx\s+)?vercel(\s+(deploy|--prod)\b|[ \t]*($|[;&|\n]))
 projects: all
 evidence: 2026-10-25 ambysto-graph APS-40
 last_validated: 2026-10-25

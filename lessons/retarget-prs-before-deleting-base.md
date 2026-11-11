@@ -2,6 +2,7 @@
 title: Retarget stacked PRs before deleting their base branch
 kind: gotcha
 applies_when: before deleting a branch that other open PRs use as their base
+match: git\s+push\b[^\n;&|]*\s(--delete|-d)\s|git\s+push\s+\S+\s+:|gh\s+pr\s+merge\b[^\n;&|]*(--delete-branch|\s-[a-z]*d\b)
 projects: all
 evidence: 2026-10-16 ambysto-kit APS-23; 2026-10-23 APS-36 PRs 2-4
 last_validated: 2026-10-23

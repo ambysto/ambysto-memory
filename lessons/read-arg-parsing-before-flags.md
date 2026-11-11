@@ -2,6 +2,7 @@
 title: Read how a script parses arguments before passing it --help
 kind: correction
 applies_when: when about to run a repo script with --help or an unfamiliar flag, above all one that installs or writes outside the repo
+match: \.(py|sh)\b[^\n]*\s--help\b
 projects: all
 evidence: 2026-11-08 claudecode-guide (`install.py --help` ran the real installer into ~/.claude)
 last_validated: 2026-11-08

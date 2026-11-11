@@ -2,6 +2,7 @@
 title: Reach ambytest's desktop through VNC, never RDP
 kind: gotcha
 applies_when: when the owner or an agent needs to see or use the VM's console desktop
+match: \b(xfreerdp|rdesktop|remmina)\b
 projects: all
 evidence: 2026-10-16 VM provisioning (autologon lost)
 last_validated: 2026-10-16

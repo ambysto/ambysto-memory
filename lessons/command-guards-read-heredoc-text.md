@@ -2,6 +2,7 @@
 title: Put text that names a guarded command in a file, not in a Bash heredoc
 kind: gotcha
 applies_when: when a Bash call writes instructions or docs that mention a command a PreToolUse guard blocks (an account switch, a token read), or when `pkill -f` targets a pattern your own command line contains
+match: \bpkill\b[^\n;&|]*\s(-[a-zA-Z0-9]*f[a-zA-Z0-9]*|--full)\b
 projects: all
 evidence: 2026-11-11 coding-playbook APS-62 (owner-token-guard denied a script whose text quoted a gh account-switch rule); APS-59 (`pkill -f` killed its own shell, exit 144)
 last_validated: 2026-11-11

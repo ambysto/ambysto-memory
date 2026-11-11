@@ -2,6 +2,7 @@
 title: Use the Antigravity CLI (agy) for Google models, not the Gemini CLI (gemini)
 kind: decision
 applies_when: when running a Google model from the CLI, or when gemini fails with HTTP 401 "API key not valid"
+match: (^|[;&|(\n])\s*gemini(\s|$)
 projects: all
 evidence: 2026-10-23 APS-36 (owner decision)
 last_validated: 2026-10-23

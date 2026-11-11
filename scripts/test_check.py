@@ -151,6 +151,17 @@ class ShapeTests(Base):
         self.repo.index()
         self.assertFail("unknown field: owner")
 
+    def test_match_regex(self):
+        self.repo.write("lessons/a.md", lesson(match=r"\bpkill\s+-f\b"))
+        self.repo.index()
+        self.assertPass()
+        self.repo.write("lessons/a.md", lesson(match="pkill (-f"))
+        self.repo.index()
+        self.assertFail("match is not a valid regex")
+        self.repo.write("lessons/a.md", lesson(match=""))
+        self.repo.index()
+        self.assertFail("match is not a valid regex")
+
     def test_projects_list_form(self):
         self.repo.write("lessons/a.md", lesson(projects="[ambysto-space, steady]"))
         self.repo.index()
