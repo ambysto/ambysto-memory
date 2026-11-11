@@ -2,6 +2,7 @@
 title: Check git check-ignore when adding fixture folders
 kind: gotcha
 applies_when: when adding a folder named fixtures, build, out or similar to a repo
+match: \bmkdir\b[^\n]*\b(fixtures|build|out)\b
 projects: all
 evidence: 2026-10-17 ambysto-space ASP-7 (a `fixtures/` line hid every `scripts/fixtures/`)
 last_validated: 2026-10-17

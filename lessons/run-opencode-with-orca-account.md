@@ -2,6 +2,7 @@
 title: Run OpenCode headless with the Orca account's data folder and --standalone
 kind: workflow
 applies_when: when a headless `opencode run` fails with "Invalid credential", "Endpoint is unavailable" or a deprecated model
+match: \bopencode\s+run\b
 projects: all
 evidence: 2026-10-23 APS-36 proof 10 (OpenCode signed in through Orca)
 last_validated: 2026-10-23

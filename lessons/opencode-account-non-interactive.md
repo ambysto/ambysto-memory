@@ -2,6 +2,7 @@
 title: Pass --integration when adding an OpenCode account non-interactively
 kind: gotcha
 applies_when: when running orca account add --agent opencode without an interactive terminal
+match: orca\s+account\s+add\b[^\n]*opencode
 projects: all
 evidence: 2026-10-23 APS-36 (OpenCode account add in non-interactive shell)
 last_validated: 2026-10-23

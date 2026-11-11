@@ -2,6 +2,7 @@
 title: In a systemd unit, run side effects in the foreground; detached ones die
 kind: gotcha
 applies_when: when code that runs in a systemd service or a `systemd-run` unit starts a detached child (Popen with start_new_session, `&`, nohup) to post a comment, notify or write a log
+match: systemd-run\b(?![^\n]*--scope)
 projects: all
 evidence: 2026-11-11 coding-playbook APS-59 PR #58 (hard review rounds 1 and 2)
 last_validated: 2026-11-11

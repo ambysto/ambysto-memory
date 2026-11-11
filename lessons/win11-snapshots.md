@@ -2,6 +2,7 @@
 title: Pick the right win11-dev snapshot layer and resync the clock after older ones
 kind: reference
 applies_when: when restoring or choosing a snapshot of the Windows test VM
+match: vm-restore\.sh|vm-snapshot
 projects: all
 evidence: 2026-10-16 to 2026-10-22 VM snapshots; global CLAUDE.md machine section
 last_validated: 2026-10-22
