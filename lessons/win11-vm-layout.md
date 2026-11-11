@@ -2,7 +2,7 @@
 title: Know the win11-dev VM layout: QEMU process, disks, forwards, console
 kind: reference
 applies_when: when a task needs to start, reach or inspect the Windows 11 test VM
-match: \bssh\s+win11(-test)?\b|start_win11\.sh
+match: start_win11\.sh|qemu-monitor\.sock
 projects: all
 evidence: 2026-10-16 VM provisioning; global CLAUDE.md machine section
 last_validated: 2026-10-22

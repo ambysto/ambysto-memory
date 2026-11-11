@@ -2,7 +2,7 @@
 title: Fetch one commit by hash when a clone must not see later history
 kind: gotcha
 applies_when: when cloning a local repo at an old commit for a blind test, an eval or a replay that must not see the fix or the answers
-match: git\s+clone\b[^\n]*\s(/|~/|\.\.?/|file://)
+match: git\s+clone\s+(-\S+\s+)*(file:/{2}|/|~/|\.\.?/)
 projects: all
 evidence: 2026-11-08 claudecode-guide APS-45 PR #26 (switch-test clones carried the kit's branch)
 last_validated: 2026-11-08
