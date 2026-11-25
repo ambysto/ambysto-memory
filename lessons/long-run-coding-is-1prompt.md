@@ -1,15 +1,15 @@
 ---
-title: Read "long-run coding" as APS-31, now in ambysto-1prompt
+title: Read "long-run coding" as APS-31, now in 0xdonniechu/1prompt
 kind: reference
 applies_when: when the owner mentions the "long-run coding research session" or asks to continue the long-run session
 projects: all
-evidence: 2026-10-23 APS-31, APS-38, ambysto/1prompt 3be8f1c
-last_validated: 2026-11-21
+evidence: 2026-10-23 APS-31, APS-38, ambysto/1prompt 3be8f1c; moved 2026-11-25 APS-97
+last_validated: 2026-11-25
 status: active
 ---
 
 The owner's "long-run coding" research is APS-31, "Autonomous run mode: one prompt takes a project to done", not Lean's Windows work.
-Since 2026-10-23 it lives in `~/work/ambysto/ambysto-1prompt` (public GitHub `ambysto/1prompt`, Apache-2.0, Plane APS-38): read its `HANDOFF.md`, `CLAUDE.md` and `CLAUDE.local.md` first.
-That repo is the only source of `hooks/agent-guard.py` (its own path); coding-playbook (called claudecode-guide until 2026-11-10) keeps a pinned copy in `hooks/1prompt/` (since APS-91, 2026-11-21) and installs it into `~/.claude/hooks/1prompt/`. The original intent and history stay in its `intent/` (APS-32, APS-34, APS-37 there).
+Since 2026-10-23 it is its own repo; since 2026-11-25 (APS-97) it lives in `~/work/0xdonniechu/1prompt` (public GitHub `0xdonniechu/1prompt`, Apache-2.0; tickets in Plane CPB): read its `HANDOFF.md`, `CLAUDE.md` and `CLAUDE.local.md` first.
+That repo is the only source of `hooks/agent-guard.py` (its own path); coding-playbook (`0xdonniechu/coding-playbook` since APS-97; called claudecode-guide until 2026-11-10) keeps a pinned copy in `hooks/1prompt/` (since APS-91, 2026-11-21) and installs it into `~/.claude/hooks/1prompt/`. The original intent and history stay in its `intent/` (APS-32, APS-34, APS-37 there).
 Everything in 1prompt is public: no ticket ids, names or private paths in files, commits or PR bodies; `python3 scripts/check.py` runs the scrub gate.
-Confirm: `git -C ~/work/ambysto/ambysto-1prompt remote get-url origin` prints the 1prompt repo.
+Confirm: `git -C ~/work/0xdonniechu/1prompt remote get-url origin` prints the 1prompt repo.
