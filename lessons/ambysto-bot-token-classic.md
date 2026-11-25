@@ -1,10 +1,10 @@
 ---
 title: Renew the ambystobot token as a classic token with the repo scope
 kind: gotcha
-applies_when: when a push or `gh` call in `ambysto-memory` or `ambysto-1prompt` fails with `Authentication failed` or `Bad credentials (HTTP 401)`
+applies_when: when a push or `gh` call in `ambysto-memory` fails with `Authentication failed` or `Bad credentials (HTTP 401)`
 projects: all
 evidence: 2026-11-24 ambysto-memory PR #52 (token file dated 2026-10-23 had expired)
-last_validated: 2026-11-24
+last_validated: 2026-11-25
 status: active
 ---
 

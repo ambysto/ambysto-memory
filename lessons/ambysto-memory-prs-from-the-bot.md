@@ -1,10 +1,10 @@
 ---
 title: Open ambysto-memory PRs as ambystobot so the owner can approve them
 kind: gotcha
-applies_when: when opening or merging a PR in `ambysto-memory` or `ambysto-1prompt`, or when `gh pr review --approve` fails with "Can not approve your own pull request"
+applies_when: when opening or merging a PR in `ambysto-memory`, or when `gh pr review --approve` fails with "Can not approve your own pull request"
 projects: all
 evidence: 2026-11-24 ambysto-memory PR #51 (opened as ambysto, merged with --admin) and PR #52 (opened as ambystobot, approved by the owner)
-last_validated: 2026-11-24
+last_validated: 2026-11-25
 status: active
 ---
 
