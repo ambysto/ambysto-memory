@@ -11,5 +11,5 @@ status: active
 Fix every MINOR that gives a wrong result on a command people really type.
 A MINOR that needs input the shell rejects as a whole, before any of it runs (a lone unclosed `$(`) or a pathological size (thousands of nested levels): do not fix it. Add it to the limits in `docs/internals.md` and tell the owner in one line.
 Options turned down: fixing all of them. In a quote-aware scanner each fix opened a new odd case, and APS-72 took four review rounds and long reports.
-When unsure whether an input is realistic, swap each action for `echo` and run it in bash and dash: it is malformed only if both refuse it and neither printed anything first. A valid line above an unclosed `$(` still runs in both, so a guard must still judge that line.
+When unsure whether an input is realistic, swap each action for `touch marker` and run it in bash and dash: it is malformed only if both refuse it and no `marker` file exists afterwards (output can be captured or redirected, a file cannot). A valid line above an unclosed `$(` still runs in both, so a guard must still judge that line.
 Confirm: the PR body lists each MINOR as fixed or documented, and the owner has no MINOR left to ask about.
